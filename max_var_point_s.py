@@ -28,11 +28,12 @@ def max_var_point(normalized, ROI, Ray_masks, NL, nhood):
         Jmasked=J*Ray_masks[:,:,it]     #J*raggi=maschera dell'img
         threshold = np.max()
         Jmasked=Jmasked*imbinarize(ROI)
-        [c1, c2]= np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
-        '''devo riguardare su matlab
-        B_points=[B_points; c1(1), c2(1) ,J(c1(1),c2(1))]
-        '''
-        roughborder[c1(1),c2(2)]=normalized[c1(1),c2(1)]  #copio pixel img all'interno della matrice
+        w = np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
+        '''prova a far girare tuttoil programam per essere sicura che funxioni bene '''
+        c = Jmasked[w]
+        list=[c(1), c(1) , J(c(1),c(1))]
+        B_points.extend(list)
+        roughborder[c(1),c(2)]=normalized[c(1),c(1)]  #copio pixel img all'interno della matrice
 
 
     #come posso chiudere i bordi ?!
