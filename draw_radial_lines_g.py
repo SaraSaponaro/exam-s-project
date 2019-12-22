@@ -56,7 +56,4 @@ def draw_radial_lines(ROI,center,R,NL):
             Ray_mask(line1[__,1],line1[__,2])=0
 
 
-        'in teoria ora devo fare il cat, coiè concatenare in 3 dimensioni le matrici Ray_masks,Ray_mask'
-
-
-
+        'in teoria ora devo fare il cat, coiè concatenare in 3 dimensioni le matrici Ray_masks,Ray_mask: --->np.concatenate'
