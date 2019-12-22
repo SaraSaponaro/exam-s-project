@@ -1,1 +1,25 @@
 1) conversione file pgm (guarda prog di francesco latrina su colab)
+
+2) Image Smoothing
+
+3) Image resize 
+
+4) normalization 
+
+
+
+
+-----------------
+commenti codice: 
+
+- sélection ROI
+matrice di zeri grande quanto img e poi copio solo i pixel all'interno della noi selezionata 
+ROI=zeros(size(im_norm));
+ROI(i1:i2,j1:j2)=im_norm(i1:i2,j1:j2);
+
+- nhood = è una matrice 5x5 di 1 
+
+-Ray_masks 126x126x32 (126 dimensione dell'img)
+
+- roughborder=max_var_points_interp---> deve ritornare le coordinate del contorno 
+segmented_mass=imfil(roughborder)--> riempio il bordo 
