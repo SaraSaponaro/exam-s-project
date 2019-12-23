@@ -21,7 +21,7 @@ plt.show()
 smooth_factor= 8
 scale_factor= 8
 size_nhood_variance=5
-NL=32
+NL=33
 
 #%%processo l'img
 k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
@@ -64,8 +64,7 @@ def pol2cart(rho, theta):
 theta=np.linspace(0,2*np.pi,NL)
 
 'creo una matrice vuota'
-Ray_masks=np.zeros(np.shape(ROI))
-
+Ray_masks=[]        
 
 'creo un vettore contenente il valore dei miei raggi per un dato theta'
 rho=np.arange(R)
@@ -90,35 +89,34 @@ for _ in range(0,NL):
         i=int(line1[___][0])
         j=int(line1[___][1])
         Ray_mask[i,j]=1 
-
-    Ray_masks+=Ray_mask
-    Ray_masks[Ray_masks>=1] = 1
+    Ray_masks.append(Ray_mask)
 plt.figure()
-plt.imshow(Ray_masks)
+plt.imshow(Ray_masks[2])
 plt.show()
 
 #%% max variance points
 '''funsione che binarizza img'''
 def imbinarize(img):
-    thresh = threshold_otsu(img)
-    img[img >= threshold] = 1
-    img[img < threshold] = 0
+    thresh = 0.01 #threshold_otsu(img)
+    img[img >= thresh] = 1
+    img[img < thresh] = 0
     return img
 
 J = generic_filter(im_norm, np.std, size=size_nhood_variance)
+'''
 plt. figure()
 plt.imshow(J, cmap='gray')
+ptl.show()
+'''
 
 B_points=[]
-roughborder=np.zeros(np.shape(normalized))
-'''
-Jmasked=J*Ray_masks     #J*raggi=maschera dell'img
-Jmasked=Jmasked*imbinarize(ROI)
-w = np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
-list=[w(0), w(1) , J[w(0),w(1)]]
-B_points.extend(list)
-roughborder[w(0),w(1)]=normalized[w(0),w(1)]  #copio pixel img all'interno della matrice
+roughborder=np.zeros(np.shape(im_norm))
 
+for _ in range (0, NL):
+    Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
+    Jmasked=Jmasked*imbinarize(ROI)
+    w = np.where(Jmasked==np.max(Jmasked))
+    list=[w[0], w[1] , J[w[0],w[1]]]
+    roughborder[w[0], w[1]]=im_norm[w[0], w[1]]
+    plt.imshow(roughborder)
 
-#come posso chiudere i bordi ?!
-'''
