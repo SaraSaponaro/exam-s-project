@@ -46,7 +46,7 @@ x_max, y_max=np.where(ROI==np.max(ROI))
 
 #%%radial lines
 R=math.ceil(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)
-center=[x_max[0],y_max[0]]
+center=[np.min(x_max),np.min(y_max)]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
 'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
@@ -83,19 +83,16 @@ for _ in range(0,NL):
     'creo una tabella cioè vettori messi in verticale'
     line1=np.column_stack((iir,jjr))
 
-    #creo matrice di zeri'
-    #ROI_lines=np.zeros(np.shape(line1))
-
     'ho creato una matrice (futura maschera) di zeri'
     Ray_mask=np.zeros(np.shape(ROI))
 
     for ___ in range(0,len(line1)):
         i=int(line1[___][0])
         j=int(line1[___][1])
-        Ray_mask[i,j]=1
+        Ray_mask[i,j]=1 
 
     Ray_masks+=Ray_mask
-
+    Ray_masks[Ray_masks>=1] = 1
 plt.figure()
 plt.imshow(Ray_masks)
 plt.show()
@@ -118,7 +115,6 @@ roughborder=np.zeros(np.shape(normalized))
 Jmasked=J*Ray_masks     #J*raggi=maschera dell'img
 Jmasked=Jmasked*imbinarize(ROI)
 w = np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
-'''prova a far girare tuttoil programam per essere sicura che funxioni bene '''
 list=[w(0), w(1) , J[w(0),w(1)]]
 B_points.extend(list)
 roughborder[w(0),w(1)]=normalized[w(0),w(1)]  #copio pixel img all'interno della matrice
