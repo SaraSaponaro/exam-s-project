@@ -111,12 +111,15 @@ ptl.show()
 
 B_points=[]
 roughborder=np.zeros(np.shape(im_norm))
-
-for _ in range (0, NL):
+p_x=[]
+p_y=[]
+for _ in range (0, 1):
     Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
     Jmasked=Jmasked*imbinarize(ROI)
     w = np.where(Jmasked==np.max(Jmasked))
-    list=[w[0], w[1] , J[w[0],w[1]]]
+    p_x.append(w[0])
+    p_y.append(w[1])
     roughborder[w[0], w[1]]=im_norm[w[0], w[1]]
     plt.imshow(roughborder)
+    
 
