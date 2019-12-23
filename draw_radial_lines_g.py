@@ -19,7 +19,7 @@ def pol2cart(rho, theta):
 
 
 
-def draw_radial_lines(ROI,center,R,NL):
+def draw_radial_lines(ROI,center, R, NL):
 
     'creo i miei angoli come suddivisione in NL parti dello angolo giro'
     theta=np.linspace(0,2*np.pi,NL)
@@ -27,33 +27,30 @@ def draw_radial_lines(ROI,center,R,NL):
     'creo una lista vuota'
     Ray_masks=[]
 
-    'looppo su ogni theta'
-    for _ in range(1,NL):
+    for _ in range(0,NL):
 
-        'creo un vettore contenente il valore dei miri raggi per un dato theta'
-        rho=np.arange(1,R)
+        'creo un vettore contenente il valore dei miei raggi per un dato theta'
+        rho=np.arange(R)
 
         'passo dalle coordinate polari a quelle cartesiane'
         x,y= pol2cart(theta[_],rho)
 
         'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-        iir=center_x+round(x)
-        jjr=center_y+round(y)
-
+        iir=center[0]+round(x)
+        jjr=center[1]+round(y)
 
         'creo una tabella cioè vettori messi in verticale'
         line1=np.column_stack((iir,jjr))
 
-        ' metto i valori della roi a zero per ?? '
-        for __ in range(1,len(line1[0])):
-            ROI(line1[__,1],line1[__,2])=0
+        'creo matrice di zeri'
+        ROI_lines=np.zeros(np.shape(line1))
 
         'ho creato una matrice (futura maschera) di zeri'
-        Ray_mask=np.zeros((len(ROI[0]),len(ROI[1])))
+        Ray_mask=np.zeros(np.shape(ROI))
 
         'e adesso faccio lo stesso procedimento di prima solo che opra ho la dimensione giusta'
         for __ in range(1,len(line1[0])):
-            Ray_mask(line1[__,1],line1[__,2])=0
+            Ray_mask(line1[1,__],line1[2,__])=0
 
 
         'in teoria ora devo fare il cat, coiè concatenare in 3 dimensioni le matrici Ray_masks,Ray_mask: --->np.concatenate'
