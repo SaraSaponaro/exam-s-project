@@ -15,7 +15,7 @@ def imbinarize(img):
 
 def max_var_point(normalized, ROI, Ray_masks, NL, nhood):
     '''standard deviation filter (3x3) for img normalized'''
-    J = generic_filter(normalized, np.std, size=3)
+    J = generic_filter(normalized, np.std, size=nhood)
     #plt. figure()
     #plt.imshow(J, cmpa='gray')
 
