@@ -25,7 +25,7 @@ def draw_radial_lines(ROI,center, R, NL):
     theta=np.linspace(0,2*np.pi,NL)
 
     'creo una lista vuota'
-    Ray_masks=[]
+    Ray_masks=np.zeros(np.shape(ROI))
 
     for _ in range(0,NL):
 
@@ -42,15 +42,16 @@ def draw_radial_lines(ROI,center, R, NL):
         'creo una tabella cioè vettori messi in verticale'
         line1=np.column_stack((iir,jjr))
 
-        'creo matrice di zeri'
-        ROI_lines=np.zeros(np.shape(line1))
+        #'creo matrice di zeri'
+        #ROI_lines=np.zeros(np.shape(line1))
 
         'ho creato una matrice (futura maschera) di zeri'
         Ray_mask=np.zeros(np.shape(ROI))
 
         'e adesso faccio lo stesso procedimento di prima solo che opra ho la dimensione giusta'
-        for __ in range(1,len(line1[0])):
-            Ray_mask(line1[1,__],line1[2,__])=0
+        for __ in range(0,len(line1[:,0])):
+            Ray_mask[line1[0,__]]=1
 
-
-        'in teoria ora devo fare il cat, coiè concatenare in 3 dimensioni le matrici Ray_masks,Ray_mask: --->np.concatenate'
+        Ray_masks+=Ray_mask
+        
+    return Ray_masks
