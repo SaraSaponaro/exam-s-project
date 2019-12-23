@@ -20,20 +20,15 @@ def max_var_point(normalized, ROI, Ray_masks, NL, nhood):
     #plt.imshow(J, cmpa='gray')
 
     B_points=[]
-    shape=np.shape(normalized)
-    roughborder=np.zeros(shape)
+    roughborder=np.zeros(np.shape(normalized))
 
-    for it in range(1, NL):
-        #itero sulla terza dimensione: Ray_masks immagini 162x162, 32 (raggi)
-        Jmasked=J*Ray_masks[:,:,it]     #J*raggi=maschera dell'img
-        threshold = np.max()
-        Jmasked=Jmasked*imbinarize(ROI)
-        w = np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
-        '''prova a far girare tuttoil programam per essere sicura che funxioni bene '''
-        c = Jmasked[w]
-        list=[c(1), c(1) , J(c(1),c(1))]
-        B_points.extend(list)
-        roughborder[c(1),c(2)]=normalized[c(1),c(1)]  #copio pixel img all'interno della matrice
+    Jmasked=J*Ray_masks     #J*raggi=maschera dell'img
+    Jmasked=Jmasked*imbinarize(ROI)
+    w = np.where(Jmasked==np.max(Jmasked))    #mi devo accertare che prenda gli indici giusti
+    '''prova a far girare tuttoil programam per essere sicura che funxioni bene '''
+    list=[w(0), w(1) , J[w(0),w(1)]]
+    B_points.extend(list)
+    roughborder[c(1),c(2)]=normalized[c(1),c(1)]  #copio pixel img all'interno della matrice
 
 
     #come posso chiudere i bordi ?!
