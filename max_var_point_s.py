@@ -28,7 +28,7 @@ def max_var_point(normalized, ROI, Ray_masks, NL, nhood):
     '''prova a far girare tuttoil programam per essere sicura che funxioni bene '''
     list=[w(0), w(1) , J[w(0),w(1)]]
     B_points.extend(list)
-    roughborder[c(1),c(2)]=normalized[c(1),c(1)]  #copio pixel img all'interno della matrice
+    roughborder[w(0),w(1)]=normalized[w(0),w(1)]  #copio pixel img all'interno della matrice
 
 
     #come posso chiudere i bordi ?!
