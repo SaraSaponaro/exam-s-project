@@ -45,7 +45,7 @@ ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
 x_max, y_max=np.where(ROI==np.max(ROI))
 
 #%%radial lines
-R=math.ceil(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)
+R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
 center=[np.min(x_max),np.min(y_max)]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
@@ -76,8 +76,8 @@ for _ in range(0,NL):
         'passo dalle coordinate polari a quelle cartesiane'
         x,y = pol2cart(rho[__],theta[_])
         'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-        iir.append(center[0]+round(x))
-        jjr.append(center[1]+round(y))
+        iir.append(center[0]+int(x))
+        jjr.append(center[1]+int(y))
 
     'creo una tabella cioè vettori messi in verticale'
     line1=np.column_stack((iir,jjr))
@@ -86,12 +86,15 @@ for _ in range(0,NL):
     Ray_mask=np.zeros(np.shape(ROI))
 
     for ___ in range(0,len(line1)):
-        i=int(line1[___][0])
-        j=int(line1[___][1])
+        i=line1[___][0]
+        j=line1[___][1]
         Ray_mask[i,j]=1 
     Ray_masks.append(Ray_mask)
+    
 plt.figure()
-plt.imshow(Ray_masks[2])
+plt.imshow(Ray_masks[10])
+plt.imshow(ROI, alpha=0.3)
+plt.plot(center[0],center[1], 'r.')
 plt.show()
 
 #%% max variance points
@@ -122,6 +125,7 @@ for _ in range (0, NL):
     p_x.append(w[1][0])
     d.append(Jmasked[w[0][0],w[1][0]])
     roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
+
 plt.figure()
 plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.5)
