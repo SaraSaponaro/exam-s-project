@@ -7,9 +7,9 @@ from skimage.transform import resize
 from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
 "leggo il file"
-fileID='0016p1_2_1.png'
+#fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.pgm'
-#fileID='0036p1_1_1.pgm'
+fileID='0036p1_1_1.png'
 image=imageio.imread(fileID)
 '''
 plt.figure()
@@ -35,10 +35,10 @@ plt.show()
 
 #%%SEGMENTATION
 "per il momento seleziono una roi a mano dell'immagine"
-y1=47
-y2=82
-x1=43
-x2=80
+y1=29
+y2=90
+x1=30
+x2=97
 
 ROI=np.zeros(np.shape(im_norm))
 ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
@@ -76,8 +76,8 @@ for _ in range(0,NL):
         'passo dalle coordinate polari a quelle cartesiane'
         x,y = pol2cart(rho[__],theta[_])
         'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-        iir.append(center[0]+int(x))
-        jjr.append(center[1]+int(y))
+        iir.append(-center[0]+int(x))
+        jjr.append(-center[1]+int(y))
 
     'creo una tabella cioè vettori messi in verticale'
     line1=np.column_stack((iir,jjr))
@@ -93,14 +93,14 @@ for _ in range(0,NL):
     
 plt.figure()
 plt.imshow(Ray_masks[10])
-plt.imshow(ROI, alpha=0.3)
+plt.imshow(im_norm, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
 plt.show()
 
 #%% max variance points
 '''funsione che binarizza img'''
 def imbinarize(img):
-    thresh = 0.01 #threshold_otsu(img)
+    thresh = threshold_otsu(img)
     img[img >= thresh] = 1
     img[img < thresh] = 0
     return img
@@ -129,7 +129,6 @@ for _ in range (0, NL):
 plt.figure()
 plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.5)
-
 
 #%%
 from scipy.interpolate import Rbf
