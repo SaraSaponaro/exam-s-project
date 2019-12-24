@@ -113,13 +113,26 @@ B_points=[]
 roughborder=np.zeros(np.shape(im_norm))
 p_x=[]
 p_y=[]
-for _ in range (0, 1):
+d=[]
+for _ in range (0, NL):
     Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
     Jmasked=Jmasked*imbinarize(ROI)
     w = np.where(Jmasked==np.max(Jmasked))
-    p_x.append(w[0])
-    p_y.append(w[1])
-    roughborder[w[0], w[1]]=im_norm[w[0], w[1]]
-    plt.imshow(roughborder)
+    p_y.append(w[0][0])     
+    p_x.append(w[1][0])
+    d.append(Jmasked[w[0][0],w[1][0]])
+    roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
+plt.figure()
+plt.imshow(roughborder)
+plt.imshow(im_norm, alpha=0.5)
+
+
+#%%
+from scipy.interpolate import Rbf
+rbfi=Rbf(p_x,p_y,d)
+xi = yi = np.linspace(np.min(p_x), np.max(p_x),33)
+di = rbfi(xi, yi)
+roughborder[int(x1),int( yi)]=1
     
 
+griddata(points, values, (grid_x, grid_y), method='linear')
