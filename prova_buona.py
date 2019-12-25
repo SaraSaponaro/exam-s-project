@@ -147,55 +147,6 @@ bordo_x=[]
 bordo_y=[]
 
 
-'devo definire una funzione con il while che mi faccia il loop (ovvero che mi riempia i pxel) tra un punto del bordo e laltro'
-def find_border(start, stop, _, bordo_x, bordo_y):
-    
-    distanza_finale=100
-
-    while (distanza_finale == 1):     #finchè non raggiungo il pixel stop
-        print('asas')
-
-
-        'trovo i pixel vicini'
-        vicino_x=[p_x[_]-1,p_x[_]-1,p_x[_],p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]-1]
-        vicino_y=[p_y[_],p_y[_]+1,p_y[_]+1,p_y[_]+1,p_y[_],p_y[_]-1,p_y[_]-1,p_y[_]-1]
-
-
-        'trovo la distanza e scelgo quella minima'
-        distanza_list=[]
-        c=0
-        for __ in range(0,len(vicino_x)):
-            c=distanza(vicino_x[__],vicino_y[__],p_x[_+1], p_y[_+1])
-            distanza_list.append(c)
-
-        distanza_list=np.asarray(distanza_list)
-
-        'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
-        d=np.where(distanza_list==distanza_list.min())
-        distanza_finale=distanza_list[[int(d[0])]]
-        print(distanza_finale)
-
-        'coordinate del pixel prescelto'
-        pixel_x=vicino_x[int(d[0])]
-        pixel_y=vicino_y[int(d[0])]
-
-        'mi salvo la posizione del pixel, perchè alla fine dovrò concatenare tutte queste liste ed otterrò il bordo'
-        bordo_x.append(pixel_x)
-        bordo_y.append(pixel_y)
-
-        
-        'il mio nuovo pixel da cui trovare tutti i vicini è quello prescelto'
-        p_x[_]=pixel_x
-        p_y[_]=pixel_y
-
-
-    return bordo_x, bordo_y
-
-
-
-
-
-
 'inizio il tutto partendo da un punto casuale del bordo: alla fine dovrà coincidere con ultimo per poter chiudere il bordo'
 
 a=0
@@ -205,9 +156,50 @@ for _ in range(0,1):
     start = im_norm[p_x[_], p_y[_]]         #pixel da cui parto
     stop = im_norm[p_x[_+1], p_y[_+1]]      #pixel in cui finisco
 
-    bordoo_x, bordoo_y=find_border(start, stop, _, bordo_x, bordo_y)
-    print(bordoo_x)
+    'pur essendo poco ottimizzato, io per ogni pixel ho 8 vicini, salvo le loro coordinate in una lista'
+
+    N1=im_norm[p_x[_]-1, p_y[_]]
+    N2=im_norm[p_x[_]-1, p_y[_]+1]
+    N3=im_norm[p_x[_], p_y[_]+1]
+    N4=im_norm[p_x[_]+1, p_y[_]+1]
+    N5=im_norm[p_x[_]+1, p_y[_]]
+    N6=im_norm[p_x[_]+1, p_y[_]-1]
+    N7=im_norm[p_x[_]+1, p_y[_]-1]
+    N8=im_norm[p_x[_]-1, p_y[_]-1]
+
+    vicino_x=[p_x[_]-1,p_x[_]-1,p_x[_],p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]-1]
+    vicino_y=[p_y[_],p_y[_]+1,p_y[_]+1,p_y[_]+1,p_y[_],p_y[_]-1,p_y[_]-1,p_y[_]-1]
+
+    '''plt.scatter(p_x[_], p_y[_],label='start')
+    plt.scatter(p_x[_]-1, p_y[_],label='vicino')
+    plt.scatter(p_x[_]-1, p_y[_]+1,label='vicino')
+    plt.scatter(p_x[_], p_y[_]+1,label='vicino')
+    plt.scatter(p_x[_]+1, p_y[_]+1,label='vicino')
+    plt.scatter(p_x[_]+1, p_y[_],label='vicino')
+    plt.scatter(p_x[_]+1, p_y[_]-1,label='vicino')
+    plt.scatter(p_x[_]+1, p_y[_]-1,label='vicino')
+    plt.scatter(p_x[_]-1, p_y[_]-1,label='vicino')'''
+
+    
+
+    'ora devo caloclare la distanza euclidde tra il vicino e stop'
+    distanza_list=[]
+    c=0
+    for __ in range(0,len(vicino_x)):
+        c=distanza(vicino_x[__],vicino_y[__],p_x[_+1], p_y[_+1])
+        distanza_list.append(c)
+
+    distanza_list=np.asarray(distanza_list)
+    d=np.where(distanza_list==distanza_list.min())
+
+    bordo_x.append(vicino_x[int(d[0])])
+    bordo_y.append(vicino_y[int(d[0])])
+    
+  
+    
 
 
+#plt.legend()
+#plt.show()
 
 
