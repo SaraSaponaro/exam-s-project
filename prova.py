@@ -7,9 +7,9 @@ from skimage.transform import resize
 from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
 "leggo il file"
-fileID='0016p1_2_1.png'
-#fileID='0025p1_4_1.pgm'
-#fileID='0036p1_11.png'
+#fileID='0016p1_2_1.png'
+fileID='0025p1_4_1.png'
+#fileID='0036p1_1_1.png'
 image=imageio.imread(fileID)
 '''
 plt.figure()
@@ -227,8 +227,8 @@ for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     bordofinale_y += bordoo_y
 
 plt.figure()
-plt.scatter(bordofinale_x,bordofinale_y)
-plt.imshow(im_norm, alpha=0.3)
+plt.plot(bordofinale_x,bordofinale_y,'.')
+plt.imshow(im_norm)
 plt.show()
 
 
