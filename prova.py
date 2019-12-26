@@ -170,12 +170,13 @@ def find_border(_, p_x, p_y):
 
         'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
         d=np.where(distanza_list==distanza_list.min())
-        distanza_finale=distanza_list[int(d[0])]
-        print('distanza0 ',distanza_finale)
+        distanza_finale=distanza_list[int(d[0][0])]
+        #print('d=',d)
+        #print('distanza0 ',distanza_finale)
 
         'coordinate del pixel prescelto'
-        pixel_x=vicino_x[int(d[0])]
-        pixel_y=vicino_y[int(d[0])]
+        pixel_x=vicino_x[int(d[0][0])]
+        pixel_y=vicino_y[int(d[0][0])]
 
         'mi salvo la posizione del pixel, perchè alla fine dovrò concatenare tutte queste liste ed otterrò il bordo'
         bordo_x.append(pixel_x)
@@ -208,7 +209,7 @@ bordofinale_x=[]
 bordofinale_y=[]
 plt.figure()
 
-for _ in range(0,NL):        #poi bisogna mettere for i in range(0,NL)
+for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     'definisco le liste vuote cosi ad ogni for me le svuota'
     print(_)
     bordoo_x=[]
@@ -223,14 +224,16 @@ for _ in range(0,NL):        #poi bisogna mettere for i in range(0,NL)
 
     bordofinale_x += bordoo_x
     bordofinale_y += bordoo_y
+
+
     
 
     'quindi nel for devo cambiargli il nome senò me lo sovrascrive; alla fine devo concatenare le liste e ho il mio bordo.'
 
+plt.scatter(bordofinale_x,bordofinale_y)
 
 
-
-
+plt.show()
 
 
 
