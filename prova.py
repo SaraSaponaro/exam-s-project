@@ -142,20 +142,18 @@ def distanza(x1,y1,x2,y2):
     return distanza_euclidea
 
 
-'questa liste mi rappresentano le coordinate x e y dei punti che mi formeranno il bordo'
-bordo_x=[]
-bordo_y=[]
-
 
 'devo definire una funzione con il while che mi faccia il loop (ovvero che mi riempia i pxel) tra un punto del bordo e laltro'
-def find_border(start, stop, _, bordo_x, bordo_y):
+def find_border(_, p_x, p_y):
+
+    'liste vuote che riempirò con i pixel trovati'
+    bordo_x=[]
+    bordo_y=[]
     
     distanza_finale=100
 
-    while (distanza_finale == 1):     #finchè non raggiungo il pixel stop
-        print('asas')
-
-
+    while (distanza_finale >= 1):     #finchè non raggiungo il pixel stop
+        
         'trovo i pixel vicini'
         vicino_x=[p_x[_]-1,p_x[_]-1,p_x[_],p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]-1]
         vicino_y=[p_y[_],p_y[_]+1,p_y[_]+1,p_y[_]+1,p_y[_],p_y[_]-1,p_y[_]-1,p_y[_]-1]
@@ -172,8 +170,8 @@ def find_border(start, stop, _, bordo_x, bordo_y):
 
         'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
         d=np.where(distanza_list==distanza_list.min())
-        distanza_finale=distanza_list[[int(d[0])]]
-        print(distanza_finale)
+        distanza_finale=distanza_list[int(d[0])]
+        print('distanza0 ',distanza_finale)
 
         'coordinate del pixel prescelto'
         pixel_x=vicino_x[int(d[0])]
@@ -183,10 +181,15 @@ def find_border(start, stop, _, bordo_x, bordo_y):
         bordo_x.append(pixel_x)
         bordo_y.append(pixel_y)
 
+        #vediamo se va tutto bene
+        #print('x=',pixel_x)
+        #print('y=',pixel_y)
+
         
         'il mio nuovo pixel da cui trovare tutti i vicini è quello prescelto'
         p_x[_]=pixel_x
         p_y[_]=pixel_y
+        
 
 
     return bordo_x, bordo_y
@@ -198,15 +201,37 @@ def find_border(start, stop, _, bordo_x, bordo_y):
 
 'inizio il tutto partendo da un punto casuale del bordo: alla fine dovrà coincidere con ultimo per poter chiudere il bordo'
 
+'non ricordo a cosa servono a e b, forse a nulla'
 a=0
 b=0
+bordofinale_x=[]
+bordofinale_y=[]
 plt.figure()
-for _ in range(0,1):
-    start = im_norm[p_x[_], p_y[_]]         #pixel da cui parto
-    stop = im_norm[p_x[_+1], p_y[_+1]]      #pixel in cui finisco
 
-    bordoo_x, bordoo_y=find_border(start, stop, _, bordo_x, bordo_y)
-    print(bordoo_x)
+for _ in range(0,NL):        #poi bisogna mettere for i in range(0,NL)
+    'definisco le liste vuote cosi ad ogni for me le svuota'
+    print(_)
+    bordoo_x=[]
+    bordoo_y=[]
+    #start = im_norm[p_x[_], p_y[_]]         #pixel da cui parto
+    #stop = im_norm[p_x[_+1], p_y[_+1]]      #pixel in cui finisco
+
+    #print('x_in = ',p_x[0])
+    #print('y_in = ',p_y[0])
+
+    bordoo_x, bordoo_y = find_border(_, p_x, p_y)
+
+    bordofinale_x += bordoo_x
+    bordofinale_y += bordoo_y
+    
+
+    'quindi nel for devo cambiargli il nome senò me lo sovrascrive; alla fine devo concatenare le liste e ho il mio bordo.'
+
+
+
+
+
+
 
 
 
