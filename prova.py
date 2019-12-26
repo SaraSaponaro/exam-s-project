@@ -131,7 +131,7 @@ for _ in range (0, NL):
 plt.figure('bordo puntallato')
 plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.3)
-plt.plot(p_x,p_y)   #dovrebbe vwnire piu o meno cosi
+plt.plot(p_x,p_y,'r.')   #dovrebbe vwnire piu o meno cosi
 #plt.show()
 
 
@@ -167,16 +167,15 @@ def find_border(_, p_x, p_y):
             distanza_list.append(c)
 
         distanza_list=np.asarray(distanza_list)
-
         'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
-        d=np.where(distanza_list==distanza_list.min())
-        distanza_finale=distanza_list[int(d[0][0])]
+        d=np.argmin(distanza_list)                 #np.where(distanza_list==distanza_list.min()) 
+        distanza_finale=distanza_list[int(d)]
         #print('d=',d)
         #print('distanza0 ',distanza_finale)
 
         'coordinate del pixel prescelto'
-        pixel_x=vicino_x[int(d[0][0])]
-        pixel_y=vicino_y[int(d[0][0])]
+        pixel_x=vicino_x[int(d)]
+        pixel_y=vicino_y[int(d)]
 
         'mi salvo la posizione del pixel, perchè alla fine dovrò concatenare tutte queste liste ed otterrò il bordo'
         bordo_x.append(pixel_x)
@@ -196,15 +195,7 @@ def find_border(_, p_x, p_y):
     return bordo_x, bordo_y
 
 
-
-
-
-
 'inizio il tutto partendo da un punto casuale del bordo: alla fine dovrà coincidere con ultimo per poter chiudere il bordo'
-
-'non ricordo a cosa servono a e b, forse a nulla'
-a=0
-b=0
 bordofinale_x=[]
 bordofinale_y=[]
 plt.figure()
@@ -231,9 +222,7 @@ for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     'quindi nel for devo cambiargli il nome senò me lo sovrascrive; alla fine devo concatenare le liste e ho il mio bordo.'
 
 plt.scatter(bordofinale_x,bordofinale_y)
-
-
-plt.show()
+plt.imshow(im_norm, alpha=0.3)
 
 
 
