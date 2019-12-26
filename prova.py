@@ -37,10 +37,10 @@ plt.show()
 
 #%%SEGMENTATION
 print('Inserisci le coordinate dela roi che contine la massa da segmentare')
-y1=input('Inserisci il tuo y1: ')
-x1=input('Inserisci il tuo x1: ')
-y2=input('Inserisci il tuo y2: ')
-x2=input('Inserisci il tuo x2: ')
+y1=int(input('Inserisci il tuo y1: '))
+x1=int(input('Inserisci il tuo x1: '))
+y2=int(input('Inserisci il tuo y2: '))
+x2=int(input('Inserisci il tuo x2: '))
 
 ''''per il momento seleziono una roi a mano dell'immagine
 y1=29
@@ -51,6 +51,11 @@ x2=97'''
 ROI=np.zeros(np.shape(im_norm))
 ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
 x_max, y_max=np.where(ROI==np.max(ROI))
+
+plt.figure('ROI')
+plt.imshow(im_norm)
+plt.imshow(ROI, alpha=0.5)
+plt.show()
 
 #%%radial lines
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
