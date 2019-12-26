@@ -7,9 +7,9 @@ from skimage.transform import resize
 from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
 "leggo il file"
-#fileID='0016p1_2_1.png'
+fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.pgm'
-fileID='0036p1_1_1.png'
+#fileID='0036p1_11.png'
 image=imageio.imread(fileID)
 '''
 plt.figure()
@@ -31,16 +31,22 @@ im_norm = im_resized/np.max(im_resized)
 
 plt.figure('immagine normalizzata')
 plt.imshow(im_norm)
-plt.figure('immagine')
-plt.imshow(image)
-#plt.show()
+# Customize the major grid
+plt.grid()
+plt.show()
 
 #%%SEGMENTATION
-"per il momento seleziono una roi a mano dell'immagine"
+print('Inserisci le coordinate dela roi che contine la massa da segmentare')
+y1=input('Inserisci il tuo y1: ')
+x1=input('Inserisci il tuo x1: ')
+y2=input('Inserisci il tuo y2: ')
+x2=input('Inserisci il tuo x2: ')
+
+''''per il momento seleziono una roi a mano dell'immagine
 y1=29
 y2=90
 x1=30
-x2=97
+x2=97'''
 
 ROI=np.zeros(np.shape(im_norm))
 ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
@@ -198,7 +204,6 @@ def find_border(_, p_x, p_y):
 'inizio il tutto partendo da un punto casuale del bordo: alla fine dovrà coincidere con ultimo per poter chiudere il bordo'
 bordofinale_x=[]
 bordofinale_y=[]
-plt.figure()
 
 for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     'definisco le liste vuote cosi ad ogni for me le svuota'
@@ -216,13 +221,11 @@ for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     bordofinale_x += bordoo_x
     bordofinale_y += bordoo_y
 
-
-    
-
-    'quindi nel for devo cambiargli il nome senò me lo sovrascrive; alla fine devo concatenare le liste e ho il mio bordo.'
-
+plt.figure()
 plt.scatter(bordofinale_x,bordofinale_y)
 plt.imshow(im_norm, alpha=0.3)
+plt.show()
+
 
 
 
