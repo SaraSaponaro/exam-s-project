@@ -107,8 +107,10 @@ for _ in range(0, len(bordofinale_x)):
     Ray_masks_raff = draw_radial_lines(ROI,center_raff,R_raff,NL)
     roughborder_raff, _ , _ = define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks_raff)
     roughborder+=roughborder_raff
-fill_raff=ndimage.binary_fill_holes(roughborder_raff).astype(int)
-    
+
+fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
+
 plt.figure()
 plt.imshow(fill_raff, cmap='gray')
-
+plt.imshow(fill, cmap='gray', alpha=0.3)
+plt.show()
