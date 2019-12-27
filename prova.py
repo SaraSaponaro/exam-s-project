@@ -73,8 +73,6 @@ plt.show()
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino
 center=[x_center, y_center]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
-
-
 Ray_masks=draw_radial_lines(ROI,center,R,NL)
 
 plt.figure('raggio casuale')
@@ -95,7 +93,27 @@ plt.show()
 
 #%% imfill border
 fill=ndimage.binary_fill_holes(roughborder).astype(int)
+
+plt.figure()
+plt.title('fill')
 plt.imshow(fill)
-plt.show()
+
 
 #%%continua
+R_raff = int(R/5)
+
+for _ in range(0, 33):
+    center_raff = [bordofinale_x[_], bordofinale_y[_]]
+    Ray_masks_raff = draw_radial_lines(ROI,center_raff,R_raff,NL)
+    
+    plt.figure('raggio casuale_raff')
+    plt.imshow(Ray_masks_raff[10])
+    plt.imshow(ROI, alpha=0.5)
+    
+    Ray_masks += Ray_masks_raff
+
+roughborder_raff, _ , _ = define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
+fill_raff=ndimage.binary_fill_holes(roughborder_raff).astype(int)
+
+plt.figure()
+plt.imshow(fill_raff, cmap='gray')
