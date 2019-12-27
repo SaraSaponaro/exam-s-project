@@ -7,8 +7,8 @@ from skimage.transform import resize
 from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
 "leggo il file"
-#fileID='0016p1_2_1.png'
-fileID='0025p1_4_1.png'
+fileID='0016p1_2_1.png'
+#fileID='0025p1_4_1.png'
 #fileID='0036p1_1_1.png'
 image=imageio.imread(fileID)
 '''
@@ -31,8 +31,7 @@ im_norm = im_resized/np.max(im_resized)
 
 plt.figure('immagine normalizzata')
 plt.imshow(im_norm)
-# Customize the major grid
-plt.grid()
+plt.grid(True)
 plt.show()
 
 #%%SEGMENTATION
@@ -58,8 +57,10 @@ plt.imshow(ROI, alpha=0.5)
 plt.show()
 
 #%%radial lines
+'''controlla il centro'''
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
-center=[np.min(x_max),np.min(y_max)]
+#center=[np.min(x_max),np.max(y_max)]
+center=[x_max[0], y_max[0]]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
 'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
@@ -105,8 +106,9 @@ for _ in range(0,NL):
     Ray_masks.append(Ray_mask)
     
 plt.figure('raggio casuale')
-plt.imshow(Ray_masks[10])
+plt.imshow(Ray_masks[20])
 plt.imshow(im_norm, alpha=0.5)
+plt.imshow(ROI, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
 #plt.show()
 
