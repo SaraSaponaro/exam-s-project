@@ -6,6 +6,9 @@ from scipy.signal import convolve2d
 from skimage.transform import resize
 from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
+from draw_radial_line import draw_radial_lines
+
+
 "leggo il file"
 fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
@@ -66,59 +69,19 @@ plt.imshow(ROI, alpha=0.5)
 plt.show()
 
 #%%radial lines
-'''controlla il centro'''
-R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
+R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino
 center=[x_center, y_center]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
-'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
-def cart2pol(x, y):
-    rho = np.sqrt(x**2 + y**2)
-    phi = np.arctan2(y, x)
-    return(rho, phi)
 
-def pol2cart(rho, theta):
-    x = rho * np.cos(theta)
-    y = rho * np.sin(theta)
-    return(x, y)
+Ray_masks=draw_radial_lines(ROI,center,R,NL)
 
-'creo i miei angoli come suddivisione in NL parti dello angolo giro'
-theta=np.linspace(0,2*np.pi,NL)
-
-'creo una matrice vuota'
-Ray_masks=[]        
-
-'creo un vettore contenente il valore dei miei raggi per un dato theta'
-rho=np.arange(R)
-
-for _ in range(0,NL):
-    iir=[]
-    jjr=[]
-    for __ in range (0, R): 
-        'passo dalle coordinate polari a quelle cartesiane'
-        x,y = pol2cart(rho[__],theta[_])
-        'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-        iir.append(center[0]+int(x))            
-        jjr.append(center[1]+int(y))
-
-    'creo una tabella cioè vettori messi in verticale'
-    line1=np.column_stack((iir,jjr))
-
-    'ho creato una matrice (futura maschera) di zeri'
-    Ray_mask=np.zeros(np.shape(ROI))
-
-    for ___ in range(0,len(line1)):
-        i=line1[___][0]
-        j=line1[___][1]
-        Ray_mask[j,i]=1 
-    Ray_masks.append(Ray_mask)
-    
 plt.figure('raggio casuale')
 plt.imshow(Ray_masks[20])
 plt.imshow(im_norm, alpha=0.5)
 plt.imshow(ROI, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
-#plt.show()
+plt.show()
 
 #%% max variance points
 '''funsione che binarizza img'''
@@ -144,17 +107,16 @@ for _ in range (0, NL):
     Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
     Jmasked=Jmasked*imbinarize(ROI)
     w = np.where(Jmasked==np.max(Jmasked))
-    p_y.append(w[0][0])     
+    p_y.append(w[0][0])
     p_x.append(w[1][0])
     d.append(Jmasked[w[0][0],w[1][0]])
     #roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
+
 #%% cerchiamo di unire i pixel per fare il bordo
 'mi serve dopo-> scrivo una fuzione per trovare la distanza euclidea'
 def distanza(x1,y1,x2,y2):
     distanza_euclidea=np.sqrt((x1-x2)**2 + (y1-y2)**2)
     return distanza_euclidea
-
-
 
 'devo definire una funzione con il while che mi faccia il loop (ovvero che mi riempia i pxel) tra un punto del bordo e laltro'
 def find_border(_, p_x, p_y):
@@ -162,11 +124,11 @@ def find_border(_, p_x, p_y):
     'liste vuote che riempirò con i pixel trovati'
     bordo_x=[]
     bordo_y=[]
-    
+
     distanza_finale=100
 
     while (distanza_finale >= 1):     #finchè non raggiungo il pixel stop
-        
+
         'trovo i pixel vicini'
         vicino_x=[p_x[_]-1,p_x[_]-1,p_x[_],p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]-1]
         vicino_y=[p_y[_],p_y[_]+1,p_y[_]+1,p_y[_]+1,p_y[_],p_y[_]-1,p_y[_]-1,p_y[_]-1]
@@ -181,7 +143,7 @@ def find_border(_, p_x, p_y):
 
         distanza_list=np.asarray(distanza_list)
         'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
-        d=np.argmin(distanza_list)                 #np.where(distanza_list==distanza_list.min()) 
+        d=np.argmin(distanza_list)                 #np.where(distanza_list==distanza_list.min())
         distanza_finale=distanza_list[int(d)]
         #print('d=',d)
         #print('distanza0 ',distanza_finale)
@@ -198,11 +160,11 @@ def find_border(_, p_x, p_y):
         #print('x=',pixel_x)
         #print('y=',pixel_y)
 
-        
+
         'il mio nuovo pixel da cui trovare tutti i vicini è quello prescelto'
         p_x[_]=pixel_x
         p_y[_]=pixel_y
-        
+
 
 
     return bordo_x, bordo_y
@@ -227,8 +189,8 @@ for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     roughborder[bordoo_y, bordoo_x]=1
     bordofinale_x += bordoo_x
     bordofinale_y += bordoo_y
-    
-   
+
+
 plt.figure()
 #plt.plot(bordofinale_x,bordofinale_y,'.')
 plt.imshow(roughborder)
@@ -240,5 +202,4 @@ fill=ndimage.binary_fill_holes(roughborder).astype(int)
 plt.imshow(fill)
 plt.show()
 
-#%%continua 
-
+#%%continua
