@@ -49,7 +49,16 @@ x2=97'''
 
 ROI=np.zeros(np.shape(im_norm))
 ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
-x_max, y_max=np.where(ROI==np.max(ROI))
+y_max,x_max=np.where(ROI==np.max(ROI))
+
+'''if the point with maximum intensity is too far away from the ROI center, we
+ chose the center of the rectangle as starting point'''
+if((np.abs(x_max-(x2-x1)/2)>(4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2)>(4/5)*(y1+(y2-y1)/2))):
+    x_center=x1+int((x2-x1)/2);
+    y_center=y1+int((y2-y1)/2);
+else:
+    x_center=x_max;
+    y_center=y_max;
 
 plt.figure('ROI')
 plt.imshow(im_norm)
@@ -59,8 +68,7 @@ plt.show()
 #%%radial lines
 '''controlla il centro'''
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
-#center=[np.min(x_max),np.max(y_max)]
-center=[x_max[0], y_max[0]]
+center=[x_center[0], y_center[0]]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
 'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
@@ -90,8 +98,8 @@ for _ in range(0,NL):
         'passo dalle coordinate polari a quelle cartesiane'
         x,y = pol2cart(rho[__],theta[_])
         'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-        iir.append(-center[0]+int(x))
-        jjr.append(-center[1]+int(y))
+        iir.append(center[0]+int(x))            
+        jjr.append(center[1]+int(y))
 
     'creo una tabella cioè vettori messi in verticale'
     line1=np.column_stack((iir,jjr))
@@ -102,7 +110,7 @@ for _ in range(0,NL):
     for ___ in range(0,len(line1)):
         i=line1[___][0]
         j=line1[___][1]
-        Ray_mask[i,j]=1 
+        Ray_mask[j,i]=1 
     Ray_masks.append(Ray_mask)
     
 plt.figure('raggio casuale')
