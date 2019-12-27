@@ -54,11 +54,11 @@ y_max,x_max=np.where(ROI==np.max(ROI))
 '''if the point with maximum intensity is too far away from the ROI center, we
  chose the center of the rectangle as starting point'''
 if((np.abs(x_max-(x2-x1)/2)>(4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2)>(4/5)*(y1+(y2-y1)/2))):
-    x_center=x1+int((x2-x1)/2);
-    y_center=y1+int((y2-y1)/2);
+    x_center=x1+int((x2-x1)/2)
+    y_center=y1+int((y2-y1)/2)
 else:
-    x_center=x_max;
-    y_center=y_max;
+    x_center=x_max[0]
+    y_center=y_max[0]
 
 plt.figure('ROI')
 plt.imshow(im_norm)
@@ -68,7 +68,7 @@ plt.show()
 #%%radial lines
 '''controlla il centro'''
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino 
-center=[x_center[0], y_center[0]]
+center=[x_center, y_center]
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 
 'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
@@ -147,12 +147,12 @@ for _ in range (0, NL):
     p_y.append(w[0][0])     
     p_x.append(w[1][0])
     d.append(Jmasked[w[0][0],w[1][0]])
-    roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
+    #roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
 
 plt.figure('bordo puntallato')
 plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.3)
-plt.plot(p_x,p_y,'r.')   #dovrebbe vwnire piu o meno cosi
+#plt.plot(p_x,p_y,'r.')   #dovrebbe vwnire piu o meno cosi
 #plt.show()
 
 
@@ -232,14 +232,24 @@ for _ in range(0,NL-1):        #poi bisogna mettere for i in range(0,NL)
     #print('y_in = ',p_y[0])
 
     bordoo_x, bordoo_y = find_border(_, p_x, p_y)
-
+    roughborder[bordoo_y, bordoo_x]=1
     bordofinale_x += bordoo_x
     bordofinale_y += bordoo_y
-
+    
+   
 plt.figure()
-plt.plot(bordofinale_x,bordofinale_y,'.')
-plt.imshow(im_norm)
+#plt.plot(bordofinale_x,bordofinale_y,'.')
+plt.imshow(roughborder)
+plt.imshow(im_norm, alpha=0.5)
 plt.show()
+
+
+
+#%%
+from skimage.morphology import flood
+
+
+
 
 
 
