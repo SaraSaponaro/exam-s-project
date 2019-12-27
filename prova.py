@@ -148,14 +148,6 @@ for _ in range (0, NL):
     p_x.append(w[1][0])
     d.append(Jmasked[w[0][0],w[1][0]])
     #roughborder[p_x, p_y]=im_norm[w[0][0], w[1][0]]
-
-plt.figure('bordo puntallato')
-plt.imshow(roughborder)
-plt.imshow(im_norm, alpha=0.3)
-#plt.plot(p_x,p_y,'r.')   #dovrebbe vwnire piu o meno cosi
-#plt.show()
-
-
 #%% cerchiamo di unire i pixel per fare il bordo
 'mi serve dopo-> scrivo una fuzione per trovare la distanza euclidea'
 def distanza(x1,y1,x2,y2):
