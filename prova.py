@@ -243,16 +243,10 @@ plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.5)
 plt.show()
 
+from scipy import ndimage
+fill=ndimage.binary_fill_holes(roughborder).astype(int)
+plt.imshow(fill)
+plt.show()
 
-
-#%%
-from skimage.morphology import flood
-
-
-
-
-
-
-
-
+#%%continua 
 
