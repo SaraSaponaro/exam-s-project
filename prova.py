@@ -4,9 +4,11 @@ import math
 import imageio
 from scipy.signal import convolve2d
 from skimage.transform import resize
+from scipy import ndimage
 from scipy.ndimage.filters import generic_filter
 from draw_radial_line import draw_radial_lines
 from define_border import define_border
+
 
 "leggo il file"
 fileID='0016p1_2_1.png'
@@ -82,8 +84,7 @@ plt.imshow(ROI, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
 plt.show()
 
-#%% max variance points
-
+#%% border
 roughborder,bordofinale_x,bordofinale_y=define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
 
 plt.figure()
@@ -92,7 +93,7 @@ plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.5)
 plt.show()
 
-from scipy import ndimage
+#%% imfill border
 fill=ndimage.binary_fill_holes(roughborder).astype(int)
 plt.imshow(fill)
 plt.show()
