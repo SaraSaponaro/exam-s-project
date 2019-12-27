@@ -101,19 +101,14 @@ plt.imshow(fill)
 
 #%%continua
 R_raff = int(R/5)
-
-for _ in range(0, 33):
+fill_tot=[]
+for _ in range(0, len(bordofinale_x)):
     center_raff = [bordofinale_x[_], bordofinale_y[_]]
     Ray_masks_raff = draw_radial_lines(ROI,center_raff,R_raff,NL)
-    
-    plt.figure('raggio casuale_raff')
-    plt.imshow(Ray_masks_raff[10])
-    plt.imshow(ROI, alpha=0.5)
-    
-    Ray_masks += Ray_masks_raff
-
-roughborder_raff, _ , _ = define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
+    roughborder_raff, _ , _ = define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks_raff)
+    roughborder+=roughborder_raff
 fill_raff=ndimage.binary_fill_holes(roughborder_raff).astype(int)
-
+    
 plt.figure()
 plt.imshow(fill_raff, cmap='gray')
+
