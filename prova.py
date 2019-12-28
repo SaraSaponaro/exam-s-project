@@ -9,6 +9,7 @@ from scipy.ndimage.filters import generic_filter
 from draw_radial_line import draw_radial_lines
 from define_border import define_border
 from scipy.ndimage.morphology import binary_erosion
+from skimage import measure
 
 "leggo il file"
 fileID='0016p1_2_1.png'
@@ -129,28 +130,29 @@ for i in range(0,126):
 
 
 #%%
+from define_border import distanza
 def mass_area(mass_only):
     a=np.where(mass_only!=0)
     area= np.shape(a)[1]
     return area 
 
 def mass_perimetro(mass_only):
-    d=np.diff(mass_only,axis=0)
-    d=np.delete(d, 0, 1)
-    d1=np.diff(mass_only)
-    d1=np.delete(d1, 1, 0)
-    m=np.abs(d+d1)
-    m=np.reshape(m,-1)
-    p=np.where(m!=0)
-    return len(p[0])
+    contours = measure.find_contours(mass_only, 1)
+    return np.shape(contours)[1]
 
-def circularity(area, perimetro):           "c=1 se cerchio unitest"
+"c=1 se cerchio unitest"
+def circularity(area, perimetro):          
     c = 4*np.pi*area/(perimetro**2)
     return c
     
 def mu_NRL():
-    distanza_euclidea=np.sqrt((x1-x2)**2 + (y1-y2)**2)
-    
-    
-    
-    
+    contours = measure.find_contours(mass_only, 1)
+    for n, contour in enumerate(contours):
+        x=int(contour[:, 1])
+        y=int(contour[:, 0])
+        d= distanza(center[0], center[1],x, y)
+'''prova 
+        
+contours = measure.find_contours(mass_only, 1)
+np.shape(contours)[1]
+'''  
