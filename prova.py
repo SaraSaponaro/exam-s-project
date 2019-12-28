@@ -99,7 +99,7 @@ plt.title('fill')
 plt.imshow(fill)
 
 
-#%%continua
+#%%iterated
 R_raff = int(R/5)
 fill_tot=[]
 for _ in range(0, len(bordofinale_x)):
@@ -112,5 +112,12 @@ fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
 
 plt.figure()
 plt.imshow(fill_raff, cmap='gray')
-plt.imshow(fill, cmap='gray', alpha=0.3)
+#plt.imshow(fill, cmap='gray', alpha=0.3)
+plt.show()
+
+#%% show result 
+mass_only = fill_raff*im_norm 
+
+plt.figure()
+plt.imshow(mass_only, cmap='gray')
 plt.show()
