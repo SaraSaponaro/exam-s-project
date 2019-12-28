@@ -126,17 +126,31 @@ for i in range(0,126):
         if ( mass_only[i][j]>0): 
             mass_only[i][j]=1
             
-d=np.diff(mass_only,axis=0)
-d1=np.diff(mass_only)
-plt.figure()
-plt.imshow(np.abs(d))
-plt.imshow(np.abs(d1))
-plt.show()
+
+
 #%%
 def mass_area(mass_only):
     a=np.where(mass_only!=0)
     area= np.shape(a)[1]
     return area 
 
-#def mass_perimetro(mass_only):
+def mass_perimetro(mass_only):
+    d=np.diff(mass_only,axis=0)
+    d=np.delete(d, 0, 1)
+    d1=np.diff(mass_only)
+    d1=np.delete(d1, 1, 0)
+    m=np.abs(d+d1)
+    m=np.reshape(m,-1)
+    p=np.where(m!=0)
+    return len(p[0])
+
+def circularity(area, perimetro):           "c=1 se cerchio unitest"
+    c = 4*np.pi*area/(perimetro**2)
+    return c
+    
+def mu_NRL():
+    distanza_euclidea=np.sqrt((x1-x2)**2 + (y1-y2)**2)
+    
+    
+    
     
