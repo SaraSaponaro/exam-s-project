@@ -8,7 +8,7 @@ from scipy import ndimage
 from scipy.ndimage.filters import generic_filter
 from draw_radial_line import draw_radial_lines
 from define_border import define_border
-
+from scipy.ndimage.morphology import binary_erosion
 
 "leggo il file"
 fileID='0016p1_2_1.png'
@@ -114,10 +114,29 @@ plt.figure()
 plt.imshow(fill_raff, cmap='gray')
 #plt.imshow(fill, cmap='gray', alpha=0.3)
 plt.show()
-
 #%% show result 
 mass_only = fill_raff*im_norm 
-
 plt.figure()
 plt.imshow(mass_only, cmap='gray')
 plt.show()
+
+#binarizzo
+for i in range(0,126):
+    for j in range(0,126):
+        if ( mass_only[i][j]>0): 
+            mass_only[i][j]=1
+            
+d=np.diff(mass_only,axis=0)
+d1=np.diff(mass_only)
+plt.figure()
+plt.imshow(np.abs(d))
+plt.imshow(np.abs(d1))
+plt.show()
+#%%
+def mass_area(mass_only):
+    a=np.where(mass_only!=0)
+    area= np.shape(a)[1]
+    return area 
+
+#def mass_perimetro(mass_only):
+    
