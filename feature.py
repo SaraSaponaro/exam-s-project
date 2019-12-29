@@ -37,6 +37,9 @@ def mu_NRL(mask_only, center, perimetro):
 def sigma_NRL(d,d_mean, perimetro):
     somm=np.sum((d-d_mean)**2)
     return np.sqrt(somm/perimetro)
+
+def Radial_lenght_entropy(d):
+    
     
    
     
