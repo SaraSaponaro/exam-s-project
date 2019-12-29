@@ -79,12 +79,12 @@ def convexity(mass,area):
 
     hull= ConvexHull(coordinate)
 
-    plt.plot(coordinate[:,0], coordinate[:,1], 'o')
+    '''plt.plot(coordinate[:,0], coordinate[:,1], 'o')
     for simplex in hull.simplices:
         plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
-    plt.show()
+    plt.show()'''
 
-    return area/hull.area
+    return hull.area, area/hull.area
 
 def mass_intensity(mass):
     mean=np.mean(mass)
@@ -102,16 +102,8 @@ def skewness(mass):
 
 
 
-
-coordinate=np.where(mass>0)
-x=coordinate[0]
-y=coordinate[1]
-coordinate=np.hstack((x,y))
-coordinate=coordinate.reshape(2, -1).T
-
-hull= ConvexHull(coordinate)
-
-plt.plot(coordinate[:,0], coordinate[:,1], 'o')
-for simplex in hull.simplices:
-    plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
-plt.show()
+a=mass_area(mask_only)
+b,c=convexity(mass, a)
+print('poligono ',b)
+print('area massa ',a)
+print(c)
