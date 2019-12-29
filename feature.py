@@ -4,6 +4,7 @@ import imageio
 import statistics as stat
 from skimage import measure
 from define_border import distanza
+from scipy.stats import norm, kurtosis, skew
 
 
 #leggo il file
@@ -15,7 +16,7 @@ img=imageio.imread(file_id)
 mass=img*mask_only
 #%%
 def mass_area(mask_only):
-    a=np.where(mass_only!=0)
+    a=np.where(mask_only != 0)
     area= np.shape(a)[1]
     return area 
 
@@ -36,9 +37,9 @@ def mu_NRL(mask_only, center, perimetro):
     x = arr[99:]
     d=distanza(center[0],center[1], x, y)
     d_m=np.max(d)
-    d=d/d_m
-    d_mean=np.sum(d)/perimetro
-    return d, d_mean 
+    d_norm=d/d_m
+    d_mean=np.sum(d_norm)/perimetro
+    return d, d_mean, d_norm
 
 def sigma_NRL(d,d_mean, perimetro):
     somm=np.sum((d-d_mean)**2)
@@ -60,11 +61,11 @@ def axis(mask_only, x_b, y_b):
         a = distanza(x[0],y[0], x[_], y[_])
 '''
 '''secondo te è d=d/d_max o solo d la radial length ?'''
-def VR(d), d_mean):
+def VR(d, d_mean):
     v=d-d_mean
     vm=np.max(v)/2
-    mean = np.mean(v>=vm)
-    std = np.std(v>=vm)
+    mean = np.mean(np.abs(v)>=vm)
+    std = np.std(np.abs(v)>=vm)
     return mean, std 
 
 '''convexity: mi serve la tua intelligenza geometrica'''
@@ -77,12 +78,14 @@ def mass_intensity(mass):
 
 
 '''controllare definizione di courtosi'''
-def kurtosis(mean_m, std_m):
-    num=np.sum(mass-mean_m)**4/(np.shape(mass)[0]*np.shape(mass)[1])
-    den=std_m**4
-    return num/den
+def kurtosix(mass):
+    curtosi=kurtosis(mass)
+    return curtosi
     
-    
+def skewness(mass):
+    skewness=skew(mass)
+    return skewness
+  
     
     
     
