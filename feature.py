@@ -71,20 +71,35 @@ def VR(d, d_mean):
     return mean, std 
 
 def convexity(mass,area):
-    coordinate=np.where(mass>0)
-    x=coordinate[0]
-    y=coordinate[1]
+    c=np.where(mass>0)
+    y=c[0]
+    x=c[1]
     coordinate=np.hstack((x,y))
     coordinate=coordinate.reshape(2, -1).T
 
     hull= ConvexHull(coordinate)
 
-    '''plt.plot(coordinate[:,0], coordinate[:,1], 'o')
-    for simplex in hull.simplices:
-        plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
-    plt.show()'''
+    plt.plot(coordinate[:,0], coordinate[:,1], 'o')
+    x_v=[]
+    y_v=[]
 
-    return hull.area, area/hull.area
+    for simplex in hull.simplices:
+        x_v.append(coordinate[simplex, 0])
+        y_v.append(coordinate[simplex, 1])
+        plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
+        plt.show()
+    x_v=np.asarray(x_v)
+    y_v=np.asarray(y_v)
+
+    area = 0
+    for i in range(0,len(x_v)-1,2):
+        area += x_v[i+1]*(y_v[i+2]-y_v[i]) + y_[i+1]*(x_v[i]-x_v[i+2])
+   
+    area /= 2
+
+    #area=hull.area
+
+    return hull.area, area
 
 def mass_intensity(mass):
     mean=np.mean(mass)
@@ -98,12 +113,6 @@ def kurtosix(mass):
 def skewness(mass):
     skewness=skew(mass)
     return skewness
-  
 
-
-
-a=mass_area(mask_only)
-b,c=convexity(mass, a)
-print('poligono ',b)
-print('area massa ',a)
-print(c)
+area=mass_area(mask_only)
+a=convexity(mass,area)
