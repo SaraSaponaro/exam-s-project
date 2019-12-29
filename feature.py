@@ -31,6 +31,8 @@ def mu_NRL(mask_only, center, perimetro):
     y = arr[0:99]
     x = arr[99:]
     d=distanza(center[0],center[1], x, y)
+    d_m=np.max(d)
+    d=d/d_m
     d_mean=np.sum(d)/perimetro
     return d, d_mean 
 
@@ -38,10 +40,24 @@ def sigma_NRL(d,d_mean, perimetro):
     somm=np.sum((d-d_mean)**2)
     return np.sqrt(somm/perimetro)
 
+'''
 def Radial_lenght_entropy(d):
+    n, bins, p = plt.hist(d, 5)
+'''
+
+'''quante volt è maggire uguale d_mean'''
+def cross_zerod(d,d_mean):
+   c = np.where(d>d_mean)
+   return len(c[0])
+
+'''
+def axis(mask_only, x_b, y_b):
+    for _ in range(0, len(x_b)): 
+        a = distanza(x[0],y[0], x[_], y[_])
+'''
     
-    
-   
+
+
     
     
     
