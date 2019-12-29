@@ -101,7 +101,7 @@ plt.show()
 #%% imfill border
 fill=ndimage.binary_fill_holes(roughborder).astype(int)
 
-plt.figure()
+plt.figure('dobbiamo dare dei titoli decenti')
 plt.title('fill')
 plt.imshow(fill)
 
@@ -119,14 +119,14 @@ for _ in range(0, len(bordofinale_x)):
 
 fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
 
-plt.figure()
+plt.figure('maschera finale')
 plt.imshow(fill_raff, cmap='gray')
 #plt.imshow(fill, cmap='gray', alpha=0.3)
 plt.show()
 
 #%% show result and save output 
 mass_only = fill_raff*im_norm
-plt.figure()
+plt.figure('massa segmentata')
 plt.title('massa segmentata')
 plt.imshow(mass_only, cmap='gray')
 plt.show()
