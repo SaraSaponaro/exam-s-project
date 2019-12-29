@@ -1,29 +1,19 @@
 import pylab as plt
 import numpy as np
-import math
 import imageio
-from scipy.signal import convolve2d
-from skimage.transform import resize
-from scipy import ndimage
-from scipy.ndimage.filters import generic_filter
-from draw_radial_line import draw_radial_lines
-from define_border import define_border
-from scipy.ndimage.morphology import binary_erosion
 from skimage import measure
 from define_border import distanza
 
 
 #leggo il file
-file_id_mass='result/0016p1_2_1_massonly.png'
+file_id_mass='prova.png' #'result/0016p1_2_1_massonly.png'
 file_id_mask='result/0016p1_2_1_mask.png'
 
 
 mass_only=imageio.imread(file_id_mass)
 mask_only=imageio.imread(file_id_mask)
 
-
-
-
+#%%
 def mass_area(mass_only):
     a=np.where(mass_only!=0)
     area= np.shape(a)[1]

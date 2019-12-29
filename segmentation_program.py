@@ -27,7 +27,7 @@ if (os.path.exists(path_out)==False):
 
 file_out=path_out+filename+'_resized'+file_extension
 mask_out=path_out+filename+'_mask'+file_extension
-massonly=path_out+filename+'_massonly'+file_extension
+#massonly=path_out+filename+'_massonly'+file_extension
 #%% parametri
 smooth_factor= 8
 scale_factor= 8
@@ -125,15 +125,22 @@ plt.imshow(fill_raff, cmap='gray')
 plt.show()
 
 #%% show result and save output 
-mass_only = fill_raff*im_norm 
-
+mass_only = fill_raff*im_norm
 plt.figure()
 plt.title('massa segmentata')
 plt.imshow(mass_only, cmap='gray')
 plt.show()
-
+#%%
 print('Writing the output files')
-plt.imsave(massonly, mass_only)
-plt.imsave(file_out, im_resized)
-plt.imsave(mask_out, fill_raff)
+
+from PIL import Image
+
+im_resized = im_resized.astype(np.uint8)
+im = Image.fromarray(im_resized, mode='L')
+im.save(file_out)
+
+fill_raff = fill_raff.astype(np.int8)
+im1 = Image.fromarray(fill_raff, mode='L')
+im1.save(mask_out)
+
 
