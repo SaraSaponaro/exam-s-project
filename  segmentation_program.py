@@ -2,6 +2,7 @@ import pylab as plt
 import numpy as np
 import math
 import imageio
+import os 
 from scipy.signal import convolve2d
 from skimage.transform import resize
 from scipy import ndimage
@@ -15,11 +16,17 @@ fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
 #fileID='0036p1_1_1.png'
 image=imageio.imread(fileID)
-'''
-plt.figure()
-plt.imshow(image)
-plt.show()
-'''
+
+
+filename, file_extension = os.path.splitext(fileID)
+path_out = 'result/'
+
+if (os.path.exists(path_out)==False):
+    print ('CREO DIRECTORY DI LAVORO\n')
+    os.makedirs('result')
+
+file_out=filename+'_resized'+file_extension
+mask_out=filename+'_mask'+file_extension
 
 #%% parametri
 smooth_factor= 8
@@ -100,6 +107,7 @@ plt.imshow(fill)
 
 
 #%%iterated
+from define_border import imbinarize
 R_raff = int(R/5)
 fill_tot=[]
 for _ in range(0, len(bordofinale_x)):
@@ -115,9 +123,16 @@ plt.imshow(fill_raff, cmap='gray')
 #plt.imshow(fill, cmap='gray', alpha=0.3)
 plt.show()
 
-#%% show result 
+#%% show result and save output 
 mass_only = fill_raff*im_norm 
 
 plt.figure()
+plt.title('massa segmentata')
 plt.imshow(mass_only, cmap='gray')
 plt.show()
+
+print('Writing the output files')
+
+plt.imsave(file_out, im_resized)
+plt.imsave(mask_out, fill_raff)
+
