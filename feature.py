@@ -88,7 +88,7 @@ def convexity(mass,area):
         xv.append(coordinate[simplex, 0])
         yv.append(coordinate[simplex, 1])
         plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
-        plt.show()  
+        #plt.show()  
     xv = np.asarray(xv)
     yv = np.asarray(yv)
     
@@ -101,6 +101,7 @@ def convexity(mass,area):
     #area=hull.area
 
     return hull.area, area
+
 def mass_intensity(mass):
     mean=np.mean(mass)
     std=np.std(mass)
@@ -114,5 +115,6 @@ def skewness(mass):
     skewness=skew(mass)
     return skewness
 
-area=mass_area(mask_only)
-a=convexity(mass,area)
+areaporco=mass_area(mask_only)
+a,b=convexity(mass,areaporco)
+print(b)
