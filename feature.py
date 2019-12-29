@@ -85,7 +85,7 @@ def convexity(mass,area):
     for i in range(0,len(xv)-2,1):
         area_p += xv[i+1]*(yv[i+2]-yv[i]) + yv[i+1]*(xv[i]-xv[i+2])
    
-    area_p =np.abs(area_p/2)
+    area_p =area_p/2
     
     return area/area_p
 
