@@ -5,6 +5,8 @@ import statistics as stat
 from skimage import measure
 from define_border import distanza
 from scipy.stats import norm, kurtosis, skew
+from scipy.spatial import ConvexHull
+import matplotlib.pyplot as plt
 
 
 #leggo il file
@@ -60,7 +62,7 @@ def axis(mask_only, x_b, y_b):
     for _ in range(0, len(x_b)): 
         a = distanza(x[0],y[0], x[_], y[_])
 '''
-'''secondo te è d=d/d_max o solo d la radial length ?'''
+
 def VR(d, d_mean):
     v=d-d_mean
     vm=np.max(v)/2
@@ -68,16 +70,27 @@ def VR(d, d_mean):
     std = np.std(np.abs(v)>=vm)
     return mean, std 
 
-'''convexity: mi serve la tua intelligenza geometrica'''
+def convexity(mass,area):
+    coordinate=np.where(mass>0)
+    x=coordinate[0]
+    y=coordinate[1]
+    coordinate=np.hstack((x,y))
+    coordinate=coordinate.reshape(2, -1).T
 
-'''13-14 mean std dell'img mass_only'''
+    hull= ConvexHull(coordinate)
+
+    '''plt.plot(coordinate[:,0], coordinate[:,1], 'o')
+    for simplex in hull.simplices:
+        plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
+    plt.show()'''
+
+    return area/hull.area
+
 def mass_intensity(mass):
     mean=np.mean(mass)
     std=np.std(mass)
     return mean,std
 
-
-'''controllare definizione di courtosi'''
 def kurtosix(mass):
     curtosi=kurtosis(mass)
     return curtosi
@@ -86,7 +99,4 @@ def skewness(mass):
     skewness=skew(mass)
     return skewness
   
-    
-    
-    
-    
+
