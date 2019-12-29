@@ -80,27 +80,27 @@ def convexity(mass,area):
     hull= ConvexHull(coordinate)
 
     plt.plot(coordinate[:,0], coordinate[:,1], 'o')
-    x_v=[]
-    y_v=[]
-
-    for simplex in hull.simplices:
-        x_v.append(coordinate[simplex, 0])
-        y_v.append(coordinate[simplex, 1])
-        plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
-        plt.show()
-    x_v=np.asarray(x_v)
-    y_v=np.asarray(y_v)
-
+  
+    xv=[]
+    yv=[]
+    
+    for simplex in hull.simplices:
+        xv.append(coordinate[simplex, 0])
+        yv.append(coordinate[simplex, 1])
+        plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'k-')
+        plt.show()  
+    xv = np.asarray(xv)
+    yv = np.asarray(yv)
+    
     area = 0
-    for i in range(0,len(x_v)-1,2):
-        area += x_v[i+1]*(y_v[i+2]-y_v[i]) + y_[i+1]*(x_v[i]-x_v[i+2])
+    for i in range(0,len(xv)-1,2):
+        area += xv[i+1]*(yv[i+2]-yv[i]) + yv[i+1]*(xv[i]-xv[i+2])
    
-    area /= 2
+    area =area/ 2
 
     #area=hull.area
 
     return hull.area, area
-
 def mass_intensity(mass):
     mean=np.mean(mass)
     std=np.std(mass)
