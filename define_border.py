@@ -8,12 +8,12 @@ def distanza(x1,y1,x2,y2):
     distanza_euclidea=np.sqrt((x1-x2)**2 + (y1-y2)**2)
     return distanza_euclidea
 
-    '''funsione che binarizza img'''
-    def imbinarize(img):
-        thresh = threshold_otsu(img)
-        img[img >= thresh] = 1
-        img[img < thresh] = 0
-        return img
+'''funsione che binarizza img'''
+def imbinarize(img):
+    thresh = threshold_otsu(img)
+    img[img >= thresh] = 1
+    img[img < thresh] = 0
+    return img
 
 def define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     J = generic_filter(im_norm, np.std, size=size_nhood_variance)

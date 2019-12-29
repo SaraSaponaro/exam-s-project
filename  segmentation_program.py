@@ -25,8 +25,8 @@ if (os.path.exists(path_out)==False):
     print ('CREO DIRECTORY DI LAVORO\n')
     os.makedirs('result')
 
-file_out=filename+'_resized'+file_extension
-mask_out=filename+'_mask'+file_extension
+file_out=path_out+filename+'_resized'+file_extension
+mask_out=path_out+filename+'_mask'+file_extension
 
 #%% parametri
 smooth_factor= 8
@@ -108,6 +108,7 @@ plt.imshow(fill)
 
 #%%iterated
 from define_border import imbinarize
+
 R_raff = int(R/5)
 fill_tot=[]
 for _ in range(0, len(bordofinale_x)):
