@@ -78,7 +78,7 @@ def convexity(mass,area):
     coordinate=coordinate.reshape(2, -1).T
     hull= ConvexHull(coordinate)
     plt.plot(coordinate[:,0], coordinate[:,1], 'o')
-    plt.plot(coordinate[hull.vertices,0], coordinate[hull.vertices,1], 'k.')
+    plt.plot(coordinate[hull.vertices,0], coordinate[hull.vertices,1], 'k-')
 
     return area/hull.volume
 
@@ -96,3 +96,5 @@ def skewness(mass):
     return skewness
 
 
+a=convexity(mass,633)
+plt.show()
