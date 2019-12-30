@@ -76,6 +76,10 @@ def convexity(mass,area):
     x=c[1]
     coordinate=np.hstack((x,y))
     coordinate=coordinate.reshape(2, -1).T
+    from convex import convex_hull
+    hull=convex_hull(coordinate)
+    "devo modificare la lista da dare in input così come richiede convex.py"
+    '''
     hull= ConvexHull(coordinate)
     plt.plot(coordinate[:,0], coordinate[:,1], 'o')
     plt.plot(coordinate[hull.vertices,0], coordinate[hull.vertices,1], 'k.')
@@ -86,7 +90,7 @@ def convexity(mass,area):
         area_p += xv[i+1]*(yv[i+2]-yv[i]) + yv[i+1]*(xv[i]-xv[i+2])
    
     area_p =area_p/2
-    
+    '''
     return area/area_p
 
 def mass_intensity(mass):
