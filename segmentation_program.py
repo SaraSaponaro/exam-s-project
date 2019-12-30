@@ -36,7 +36,7 @@ size_nhood_variance=5   #controlla di usarlo
 NL=33
 
 #%%processo l'img
-loggin.info('Si processa immagine.')
+logging.info('Si processa immagine.')
 k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
 im_conv=convolve2d(image, k )
 im_resized = resize(im_conv, (scale_factor,scale_factor), preserve_range=True)
@@ -68,6 +68,7 @@ else:
     x_center=x_max[0]
     y_center=y_max[0]
 center=[x_center, y_center]
+print(center)
 
 plt.figure('ROI')
 plt.imshow(im_norm)
@@ -126,7 +127,7 @@ plt.figure('massa segmentata')
 plt.imshow(mass_only, cmap='gray')
 plt.show()
 
-loggin.info('Si salvano i risulati.')
+logging.info('Si salvano i risulati.')
 im_resized = im_resized.astype(np.uint8)
 im = Image.fromarray(im_resized, mode='L')
 im.save(file_out)
