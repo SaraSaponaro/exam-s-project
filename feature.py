@@ -78,12 +78,11 @@ def rope(mass,mask_only, center):
     y = arr[0:1+int(len(arr)/2)]
     x = arr[1+int(len(arr)/2):]
     
-  
 
     plt.figure('per ogni punto printo la linea che passa piu vicina al centro')
     plt.imshow(mask_only)
 
-    
+    l_list=[]
     for _ in range(0,len(x)):
         a_value=[]
         m_value=[]
@@ -97,20 +96,24 @@ def rope(mass,mask_only, center):
                 m_value.append(m)
                 q_value.append(q)
 
-        a_value=np.asarray(a_value)
+        a_value=np.asarray(a_value)     #se è uguale a zero la retta passa per il centro 
         m_value=np.asarray(m_value)
         q_value=np.asarray(q_value)
 
         a_value=np.abs(a_value)
         
         a_min_value=np.where(a_value==a_value.min())
+        
+        R=distanza(x[_],y[_],x[a_min_value[0][0]], y[a_min_value[0][0]])
+        l_list.append(R)
 
         x_plot=np.linspace(x[_],x[a_min_value[0][0]],400)
         y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
         plt.plot(x_plot,y_plot)
-    
         
-
+        
+        
+    return np.min(l_list), np.max(l_list)
 
     plt.show()
 
@@ -151,4 +154,4 @@ def skewness(mass):
     skewness=skew(mass)
     return skewness
 
-a=rope(mass,mask_only,[67, 61])
+a_min, a_max=rope(mass,mask_only,[67, 61])
