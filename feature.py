@@ -78,123 +78,11 @@ def rope(mass,mask_only, center):
     y = arr[0:1+int(len(arr)/2)]
     x = arr[1+int(len(arr)/2):]
     
-    
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-    'disegno una linea'
-    '''m,q=linear(x[0],y[0],x[50],y[50])
-    x_plot=np.linspace(x[0],x[50],400)
-    y_plot=m*x_plot + q
-    plt.figure('solo una linea')
-    plt.imshow(mask_only)
-    plt.plot(x_plot,y_plot)
-    plt.scatter(x[0],y[0])
-    plt.scatter(x[50],y[50])'''
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
+  
 
-
-
-
-    'devo estenderla da 1 punto a tutti gli altri con un for'
-
-
-
-
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-    '''plt.figure('tutte le linee che partono da un punto')
-
-    for _ in range(0,len(x),10):
-        if(x[0]!=x[_]):
-            m,q=linear(x[0],y[0],x[_],y[_])
-            x_plot=np.linspace(x[0],x[_],400)
-            y_plot=m*x_plot + q
-            plt.imshow(mask_only)
-            plt.plot(x_plot,y_plot)'''
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-        
-
-
-
-
-
-    'nel for di prima devo dire di plottare la linea solo se passa dal centro'
-
-
-
-
-
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-    'MI SEMBRA LIDEA MIGLIORE MA PYTHON NON LO FA PARTIRE '
-    '''plt.figure('tutte le linee che partono da un punto che interecano il centro')
-    plt.imshow(mask_only)
-
-    for __ in range(0,len(x)):
-        if(x[0]!=x[__]):
-            m,q=linear(x[0],y[0],x[__],y[__])
-            a=center[1]-m*center[0]-q
-            print(a)
-            #if(np.abs(a)<1):
-            if(a<1):
-                x_plot=np.linspace(x[0],x[__],400)
-                y_plot=m*x_plot + q
-                plt.plot(x_plot,y_plot)
-            else: 
-                break'''
-
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-
-    'QUETSA E UN IDEA RUDIMENTALE MA FUNZIONA'
-    '''plt.figure('tutte le linee che partono da un punto[0,0] che interecano il centro, cioè solo una')
-    plt.imshow(mask_only)
-
-    a_value=[]
-    m_value=[]
-    q_value=[]
-
-    for __ in range(0,len(x)):
-        
-        if(x[0]!=x[__]):
-            m,q=linear(x[0],y[0],x[__],y[__])
-            a=center[1]-m*center[0]-q
-            a_value.append(a)
-            m_value.append(m)
-            q_value.append(q)
-
-    a_value=np.asarray(a_value)
-    m_value=np.asarray(m_value)
-    q_value=np.asarray(q_value)
-
-    a_value=np.abs(a_value)
-    
-    a_min_value=np.where(a_value==a_value.min())
-
-    x_plot=np.linspace(x[0],x[a_min_value[0][0]],400)
-    y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
-    plt.plot(x_plot,y_plot)'''
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
-
-
-
-
-
-
-
-    'ADESSO PROVO A ESTENDERLO A TUTTI I PUNTI, MA SICURO HO SBAGLIATO A IDENTARE LA ROBA DEI FOR QUINDI LA VEDIAMO INSIEME e se lo mandi infatti e incompleto'
-
-
-
-
-
-
-
-
-    '-----------------------------------------------------------------------------------------------------------------------------------------'
     plt.figure('per ogni punto printo la linea che passa piu vicina al centro')
     plt.imshow(mask_only)
 
-
-    a_final_value=[]
-    m_final_value=[]
-    q_final_value=[]
     
     for _ in range(0,len(x)):
         a_value=[]
@@ -202,38 +90,26 @@ def rope(mass,mask_only, center):
         q_value=[]
         for __ in range(0,len(x)):
             
-            if(x[0]!=x[__]):
+            if(x[_]!=x[__]):
                 m,q=linear(x[_],y[_],x[__],y[__])
                 a=center[1]-m*center[0]-q
                 a_value.append(a)
                 m_value.append(m)
                 q_value.append(q)
 
-            a_value=np.asarray(a_value)
-            m_value=np.asarray(m_value)
-            q_value=np.asarray(q_value)
+        a_value=np.asarray(a_value)
+        m_value=np.asarray(m_value)
+        q_value=np.asarray(q_value)
 
-            a_value=np.abs(a_value)
+        a_value=np.abs(a_value)
         
-            a_min_value=np.where(a_value==a_value.min())
+        a_min_value=np.where(a_value==a_value.min())
 
-            a_final_value.append(a_min_value[0][0])
-            m_final_value.append(m_value[a_min_value[0][0]])
-            q_final_value.append(q_value[a_min_value[0][0]])
-        
-
-
-
-    x_plot=np.linspace(x[0],x[a_min_value[0][0]],400)
-    y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
-    plt.plot(x_plot,y_plot)
-
-    '-----------------------------------------------------------------------'
-    
+        x_plot=np.linspace(x[_],x[a_min_value[0][0]],400)
+        y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
+        plt.plot(x_plot,y_plot)
     
         
-
-
 
 
     plt.show()
