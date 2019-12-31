@@ -80,9 +80,10 @@ plt.show()
 R=int(np.sqrt((x2-x1)**2+(y2-y1)**2)/2)     #intero più vicino
 nhood=np.ones((size_nhood_variance,size_nhood_variance))
 Ray_masks=draw_radial_lines(ROI,center,R,NL)
+print(np.shape(Ray_masks))
 
-plt.figure('raggio casuale')
-plt.imshow(Ray_masks[20])
+plt.figure('raggio casuale -> Ray_masks')
+plt.imshow(Ray_masks[1])
 plt.imshow(im_norm, alpha=0.5)
 plt.imshow(ROI, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
