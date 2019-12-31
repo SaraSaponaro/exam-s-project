@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def draw_radial_lines(ROI,center,R,NL):
     'definisco le funzioni che mi permettono il passaggio da coordinate cartesiane a polari'
@@ -23,8 +24,8 @@ def draw_radial_lines(ROI,center,R,NL):
             'passo dalle coordinate polari a quelle cartesiane'
             x,y = pol2cart(rho[__],theta[_])
             'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
-            iir.append(center[0]+int(x))
-            jjr.append(center[1]+int(y))
+            iir.append(center[0]+math.ceil(x))
+            jjr.append(center[1]+math.ceil(y))
 
         'creo una tabella cioè vettori messi in verticale'
         line1=np.column_stack((iir,jjr))

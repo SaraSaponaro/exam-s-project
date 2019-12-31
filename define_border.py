@@ -40,7 +40,7 @@ def define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
         p_y.append(w[0][0])
         p_x.append(w[1][0])
         d.append(Jmasked[w[0][0],w[1][0]])
-
+    
     "riempio il bordo tra due elementi adiacenti di p_x,p_y"
     def find_border(_, p_x, p_y):
 
