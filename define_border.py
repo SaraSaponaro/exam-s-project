@@ -2,6 +2,7 @@ from scipy.ndimage.filters import generic_filter
 from skimage.filters import threshold_otsu
 import numpy as np
 import math
+import pylab as plt
 
 '''distanaza euclidea'''
 def distanza(x1,y1,x2,y2):
@@ -16,7 +17,12 @@ def imbinarize(img):
     return img
 
 def define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
+    
     J = generic_filter(im_norm, np.std, size=size_nhood_variance)
+    
+    #plt.figure('filtro std')
+    #plt.imshow(J)
+    #plt.show()
 
     roughborder=np.zeros(np.shape(im_norm))
 

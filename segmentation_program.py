@@ -4,7 +4,7 @@ import imageio
 import os
 import logging
 from scipy.signal import convolve2d
-from skimage.transform import resize
+from skimage.transform import  rescale, resize
 from PIL import Image
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
@@ -31,15 +31,15 @@ mask_out=path_out+filename+'_mask'+file_extension
 #%% parametri
 logging.info('inserisco parametri per la segmentazione.')
 smooth_factor= 8
-scale_factor= 126
+scale_factor= 8
 size_nhood_variance=5   #controlla di usarlo
 NL=33
 
 #%%processo l'img
 logging.info('Si processa immagine.')
 k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
-im_conv=convolve2d(image, k )
-im_resized = resize(im_conv, (scale_factor,scale_factor), preserve_range=True)
+im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
+im_resized = rescale(im_conv, 1/scale_factor)
 im_norm = im_resized/np.max(im_resized)
 
 plt.figure('immagine normalizzata')
@@ -118,7 +118,7 @@ fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
 
 plt.figure('maschera finale')
 plt.imshow(fill_raff, cmap='gray')
-plt.imshow(fill, cmap='gray', alpha=0.3)
+#plt.imshow(fill, cmap='gray', alpha=0.3)
 plt.show()
 
 #%% show result and save output
