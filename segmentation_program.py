@@ -14,8 +14,8 @@ from define_border import define_border
 logging.info('Si legge il file.')
 #fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
-#fileID='0036p1_1_1.png'
-fileID='NL_4.png'
+fileID='0036p1_1_1.png'
+#fileID='NL_4.png'
 
 image=imageio.imread(fileID)
 
@@ -84,7 +84,7 @@ Ray_masks=draw_radial_lines(ROI,center,R,NL)
 print(np.shape(Ray_masks))
 
 plt.figure('raggio casuale -> Ray_masks')
-plt.imshow(Ray_masks[1])
+plt.imshow(Ray_masks[0])
 plt.imshow(im_norm, alpha=0.5)
 plt.imshow(ROI, alpha=0.5)
 plt.plot(center[0],center[1], 'r.')
@@ -131,7 +131,6 @@ plt.show()
 
 logging.info('Si salvano i risulati.')
 im_resized = im_resized.astype(np.uint8)
-im = Image.fromarray(im_resized, mode='L')
 im.save(file_out)
 
 fill_raff = fill_raff.astype(np.int8)
