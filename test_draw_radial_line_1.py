@@ -16,7 +16,7 @@ test1_result_name='NL_4.png'
 test1_result=imageio.imread(test1_result_name)
 
 'immagini su cui fare la prova'
-test1=np.zeros((126,126,3))
+test1=np.zeros((4,126,126))
 
 
 class Test_draw_radial_lines(unittest.TestCase):

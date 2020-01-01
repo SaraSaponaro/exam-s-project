@@ -14,7 +14,8 @@ from define_border import define_border
 logging.info('Si legge il file.')
 #fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
-fileID='0036p1_1_1.png'
+#fileID='0036p1_1_1.png'
+fileID='NL_4.png'
 
 image=imageio.imread(fileID)
 
@@ -33,7 +34,7 @@ logging.info('inserisco parametri per la segmentazione.')
 smooth_factor= 8
 scale_factor= 8
 size_nhood_variance=5   #controlla di usarlo
-NL=33
+NL=4
 
 #%%processo l'img
 logging.info('Si processa immagine.')
