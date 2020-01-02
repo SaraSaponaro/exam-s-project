@@ -23,14 +23,14 @@ def draw_radial_lines(ROI,center,R,NL):
         for __ in range (0, R):
             'passo dalle coordinate polari a quelle cartesiane'
             x,y = pol2cart(rho[__],theta[_])
-            print(x,y)
+
             'centro la origine delle linee nel centro della lesione che ho dato in imput (center_x, center_y)'
             iir.append(center[0]+math.ceil(x))
             jjr.append(center[1]+math.ceil(y))
-           
+
         'creo una tabella cioè vettori messi in verticale'
         line1=np.column_stack((iir,jjr))
-       
+
         'ho creato una matrice (futura maschera) di zeri'
         Ray_mask=np.zeros(np.shape(ROI))
 

@@ -2,6 +2,7 @@ import pylab as plt
 import numpy as np
 import imageio
 import logging
+import glob
 import statistics as stat
 from skimage import measure
 from define_border import distanza
@@ -9,34 +10,17 @@ from scipy.stats import norm, kurtosis, skew
 from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
 
-
-logging.info('leggo i files.')
-file_id='result/0036p1_1_1_resized.png'
-file_id_mask='result/0036p1_1_1_mask.png'
-
-mask_only=imageio.imread(file_id_mask)
-img=imageio.imread(file_id)
-mass=img*mask_only
-
-#plt.figure('img+mask')
-#plt.imshow(img, alpha=0.4)
-#plt.imshow(mask_only)
-#plt.imshow(mass)
-#plt.show()
-
 def linear(x1,y1,x2,y2):
     m=(y2-y1)/(x2-x1)
     q=y1 - x1*(y2-y1)/(x2-x1)
     return m,q
-    
 
-#%%lista di feature
 def mass_area(mask_only):
     a=np.where(mask_only != 0)
     area= np.shape(a)[1]
     return area
 
-def mass_perimetro(mask_only):
+def mass_perimeter(mask_only):
     contours = measure.find_contours(mask_only, 0)
     return np.shape(contours)[1]
 
@@ -45,13 +29,13 @@ def circularity(area, perimetro):
     c = 4*np.pi*area/(perimetro**2)
     return c
 
-def mu_NRL(mask_only, center, perimetro):
+def mu_NRL(mask_only, center_x, center_y, perimetro):
     contours = measure.find_contours(mask_only, 0)
     arr=  contours[0]
     arr = arr.flatten('F')
     y = arr[0:1+int(len(arr)/2)]
     x = arr[1+int(len(arr)/2):]
-    d=distanza(center[0],center[1], x, y)
+    d=distanza(center_x,center_y, x, y)
     d_m=np.max(d)
     d_norm=d/d_m
     d_mean=np.sum(d_norm)/perimetro
@@ -67,17 +51,17 @@ def Radial_lenght_entropy(d):
 '''
 
 '''quante volt è maggire uguale d_mean'''
-def cross_zerod(d,d_mean):
+def cross_zero(d,d_mean):
    c = np.where(d>d_mean)
    return len(c[0])
 
-def rope(mass,mask_only, center):
+def rope(mass,mask_only, center_x, center_y):
     contours = measure.find_contours(mask_only, 0)
     arr=  contours[0]
     arr = arr.flatten('F')
     y = arr[0:1+int(len(arr)/2)]
     x = arr[1+int(len(arr)/2):]
-    
+
 
     plt.figure('per ogni punto printo la linea che passa piu vicina al centro')
     plt.imshow(mask_only)
@@ -88,36 +72,34 @@ def rope(mass,mask_only, center):
         m_value=[]
         q_value=[]
         for __ in range(0,len(x)):
-            
+
             if(x[_]!=x[__]):
                 m,q=linear(x[_],y[_],x[__],y[__])
-                a=center[1]-m*center[0]-q
+                a=center_y-m*center_x-q
                 a_value.append(a)
                 m_value.append(m)
                 q_value.append(q)
 
-        a_value=np.asarray(a_value)     #se è uguale a zero la retta passa per il centro 
+        a_value=np.asarray(a_value)     #se è uguale a zero la retta passa per il centro
         m_value=np.asarray(m_value)
         q_value=np.asarray(q_value)
 
         a_value=np.abs(a_value)
-        
+
         a_min_value=np.where(a_value==a_value.min())
-        
+
         R=distanza(x[_],y[_],x[a_min_value[0][0]], y[a_min_value[0][0]])
         l_list.append(R)
 
         x_plot=np.linspace(x[_],x[a_min_value[0][0]],400)
         y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
         plt.plot(x_plot,y_plot)
-        
-        
-        
+
+
+
     return np.min(l_list), np.max(l_list)
 
     plt.show()
-
-    
 
 
 def VR(d, d_mean):
@@ -146,12 +128,62 @@ def mass_intensity(mass):
     std=np.std(mass)
     return mean,std
 
-def kurtosix(mass):
-    curtosi=kurtosis(mass)
-    return curtosi
 
-def skewness(mass):
-    skewness=skew(mass)
-    return skewness
 
-a_min, a_max=rope(mass,mask_only,[67, 61])
+#%%
+
+if __name__ == '__main__':
+    logging.info('Reading files.')
+    files=glob.glob('result/*_resized.png')
+    masks=glob.glob('result/*_mask.png')
+    center_x, center_y = np.loadtxt('center_list.txt', unpack=True, usecols=(1,2))
+    mass_area_list=[]
+    mass_perimeter_list=[]
+    circularity_list=[]
+    mu_NRL_list=[]
+    sigma_NRL_list=[]
+    cross_zero_list=[]
+    rope_max_list=[]
+    rope_min_list=[]
+    VR_mean_list=[]
+    VR_std_list=[]
+    convexity_list=[]
+    mass_intensity_mean_list=[]
+    mass_intensity_std_list=[]
+    kurtosis_list=[]
+    skew_list=[]
+
+    for _ in range(0, len(files)):
+        mask_only=imageio.imread(masks[_])
+        img=imageio.imread(files[_])
+        mass=img*mask_only
+
+        area=mass_area(mask_only)
+        p=mass_perimeter(mask_only)
+
+        mass_area_list.append(area)
+        mass_perimeter_list.append(p)
+
+        circularity_list.append(circularity(area,p))
+        d, d_mean, __ = mu_NRL(mask_only, center_x[_], center_y[_], p)     #fai file con center
+
+        mu_NRL_list.append(d_min)
+        sigma_NRL_list.append(sigma_NRL(d, d_mean, p))
+        cross_zero_list.append(cross_zero(d, d_mean))
+
+        rmax, rmin = rope(mass, mask_only, center_x[_], center_y[_])
+
+        rope_max_list.append(rmax)
+        rope_min_list.append(rmin)
+
+        vm, vs= VR(d, d_mean)
+
+        VR_mean_list.append(vm)
+        VR_std_list.append(vs)
+        convexity_list.append(convexity(mass, area))
+
+        im, istd = mass_intensity(mass)
+        mass_intensity_mean_list.append(im)
+        mass_intensity_std_list.append(istd)
+        kurtosis_list.append(kurtosis(mass))
+        skew_list.append(skew(mass))

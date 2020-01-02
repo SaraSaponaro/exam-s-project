@@ -14,7 +14,7 @@ from define_border import define_border_new
 logging.info('Si legge il file.')
 fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
-fileID='0036p1_1_1.png'
+#fileID='0036p1_1_1.png'
 #fileID='NL_4.png'
 
 image=imageio.imread(fileID)
@@ -134,7 +134,8 @@ plt.imshow(mass_only, cmap='gray')
 plt.show()
 
 logging.info('Si salvano i risulati.')
-im_resized = im_resized.astype(np.uint8)
+im = im_resized.astype(np.uint8)
+im=Image.fromarray(im, mode='P')
 im.save(file_out)
 
 fill_raff = fill_raff.astype(np.int8)
