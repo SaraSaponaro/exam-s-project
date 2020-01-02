@@ -17,6 +17,6 @@ mask = glob.glob('result/0016p1_2_1_mask.png')
 confronto = glob.glob('ref/0016p1_2_1_mass_mask.png')
 
 plt.imshow(Image.open(confronto[0]), cmap='gray')
-#plt.imshow(Image.open(mask[0]), alpha=0.5, cmap='gray')
-plt.imshow(Image.open('ref/0016p1_2_1_resized.png'), alpha=0.7)
+plt.imshow(Image.open(mask[0]), alpha=0.5, cmap='gray')
+#plt.imshow(Image.open('ref/0036p1_1_1_resized.png'), alpha=0.7)
 

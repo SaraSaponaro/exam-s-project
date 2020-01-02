@@ -8,11 +8,11 @@ from skimage.transform import  rescale, resize
 from PIL import Image
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
-from define_border import define_border
+from define_border import define_border_new
 
 
 logging.info('Si legge il file.')
-#fileID='0016p1_2_1.png'
+fileID='0016p1_2_1.png'
 #fileID='0025p1_4_1.png'
 fileID='0036p1_1_1.png'
 #fileID='NL_4.png'
@@ -34,7 +34,7 @@ logging.info('inserisco parametri per la segmentazione.')
 smooth_factor= 8
 scale_factor= 8
 size_nhood_variance=5   #controlla di usarlo
-NL=4
+NL=33
 
 #%%processo l'img
 logging.info('Si processa immagine.')
@@ -91,10 +91,10 @@ plt.plot(center[0],center[1], 'r.')
 plt.show()
 
 #%% border
-roughborder,bordofinale_x,bordofinale_y=define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
+roughborder,bordofinale_x,bordofinale_y=define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
 
 plt.figure('bordo')
-plt.plot(bordofinale_x,bordofinale_y,'.')
+#plt.plot(bordofinale_x,bordofinale_y,'.')
 plt.imshow(roughborder)
 plt.imshow(im_norm, alpha=0.5)
 plt.show()
@@ -109,11 +109,10 @@ plt.show()
 from define_border import imbinarize
 
 R_raff = int(R/5)
-fill_tot=[]
 for _ in range(0, len(bordofinale_x)):
     center_raff = [bordofinale_x[_], bordofinale_y[_]]
     Ray_masks_raff = draw_radial_lines(ROI,center_raff,R_raff,NL)
-    roughborder_raff, _ , _ = define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks_raff)
+    roughborder_raff, _ , _ = define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks_raff)
     roughborder+=roughborder_raff
 
 fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
