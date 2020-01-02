@@ -33,8 +33,8 @@ def mu_NRL(mask_only, center_x, center_y, perimetro):
     contours = measure.find_contours(mask_only, 0)
     arr=  contours[0]
     arr = arr.flatten('F')
-    y = arr[0:1+int(len(arr)/2)]
-    x = arr[1+int(len(arr)/2):]
+    y = arr[0:(int(len(arr)/2))]
+    x = arr[(int(len(arr)/2)):]
     d=distanza(center_x,center_y, x, y)
     d_m=np.max(d)
     d_norm=d/d_m
@@ -61,11 +61,6 @@ def rope(mass,mask_only, center_x, center_y):
     arr = arr.flatten('F')
     y = arr[0:1+int(len(arr)/2)]
     x = arr[1+int(len(arr)/2):]
-
-
-    plt.figure('per ogni punto printo la linea che passa piu vicina al centro')
-    plt.imshow(mask_only)
-
     l_list=[]
     for _ in range(0,len(x)):
         a_value=[]
@@ -90,16 +85,13 @@ def rope(mass,mask_only, center_x, center_y):
 
         R=distanza(x[_],y[_],x[a_min_value[0][0]], y[a_min_value[0][0]])
         l_list.append(R)
-
+        '''
         x_plot=np.linspace(x[_],x[a_min_value[0][0]],400)
         y_plot=m_value[a_min_value[0][0]]*x_plot + q_value[a_min_value[0][0]]
         plt.plot(x_plot,y_plot)
-
-
-
+        '''
     return np.min(l_list), np.max(l_list)
 
-    plt.show()
 
 
 def VR(d, d_mean):
@@ -116,11 +108,13 @@ def convexity(mass,area):
     coordinate=np.hstack((x,y))
     coordinate=coordinate.reshape(2, -1).T
     hull= ConvexHull(coordinate)
+    '''
     #plt.plot(coordinate[:,0], coordinate[:,1], 'o')
     plt.plot(coordinate[hull.vertices,0], coordinate[hull.vertices,1], 'ko')
     for simplex in hull.simplices:
         plt.plot(coordinate[simplex, 0], coordinate[simplex, 1], 'r-')
     plt.imshow(mass)
+    '''
     return area/hull.volume
 
 def mass_intensity(mass):
@@ -167,7 +161,7 @@ if __name__ == '__main__':
         circularity_list.append(circularity(area,p))
         d, d_mean, __ = mu_NRL(mask_only, center_x[_], center_y[_], p)     #fai file con center
 
-        mu_NRL_list.append(d_min)
+        mu_NRL_list.append(d_mean)
         sigma_NRL_list.append(sigma_NRL(d, d_mean, p))
         cross_zero_list.append(cross_zero(d, d_mean))
 
@@ -187,3 +181,5 @@ if __name__ == '__main__':
         mass_intensity_std_list.append(istd)
         kurtosis_list.append(kurtosis(mass))
         skew_list.append(skew(mass))
+
+
