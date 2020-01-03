@@ -74,9 +74,9 @@ if __name__ == '__main__':
 
         logging.info('Starting the image segmentation.')
 
-        decision  = 'no'
+        decision  = 'si'
 
-        while (decision = 'no'):
+        while (decision != 'no'):
 
             logging.info('Enter ROIs coordinates that contains the mass.')
             y1=int(input('Enter y1: '))
@@ -99,6 +99,7 @@ if __name__ == '__main__':
             plt.colorbar()
             plt.show()
 
+            print('Do you want to change your coordinates?')
             decision=input('Answer yes or no: ')
 
         
