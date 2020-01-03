@@ -73,27 +73,38 @@ if __name__ == '__main__':
         im_norm, im_resized = process_img(image, smooth_factor, scale_factor)
 
         logging.info('Starting the image segmentation.')
-        logging.info('Enter ROIs coordinates that contains the mass.')
-        y1=int(input('Enter y1: '))
-        x1=int(input('Enter x1: '))
-        y2=int(input('Enter y2: '))
-        x2=int(input('Enter x2: '))
 
-        ROI=np.zeros(np.shape(im_norm))
-        ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
-        y_max,x_max=np.where(ROI==np.max(ROI))
-        center = find_center(x_max, y_max)
+        decision  = 'no'
+
+        while (decision = 'no'):
+
+            logging.info('Enter ROIs coordinates that contains the mass.')
+            y1=int(input('Enter y1: '))
+            x1=int(input('Enter x1: '))
+            y2=int(input('Enter y2: '))
+            x2=int(input('Enter x2: '))
+
+            ROI=np.zeros(np.shape(im_norm))
+            ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
+            y_max,x_max=np.where(ROI==np.max(ROI))
+            center = find_center(x_max, y_max)
+
+            
+            logging.info('Showing ROI and center.' )
+            plt.figure()
+            plt.title('ROI')
+            plt.imshow(im_norm)
+            plt.imshow(ROI, alpha=0.3)
+            plt.plot(center[0], center[1], 'r.')
+            plt.colorbar()
+            plt.show()
+
+            decision=input('Answer yes or no: ')
+
+        
 
         f.write('{} \t {} \t {}\n'.format(filename, center[0], center[1]))
 
-        logging.info('Showing ROI and center.' )
-        plt.figure()
-        plt.title('ROI')
-        plt.imshow(im_norm)
-        plt.imshow(ROI, alpha=0.3)
-        plt.plot(center[0], center[1], 'r.')
-        plt.colorbar()
-        plt.show()
 
         logging.info('Drawing radial lines.')
         #define length of ray.
