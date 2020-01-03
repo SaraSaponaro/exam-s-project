@@ -40,7 +40,7 @@ def find_center(x_max, y_max):
     return (center)
 
 if __name__ == '__main__':
-    logging.info('Si legge il file.')
+    logging.info('Reading files')
     #fileID='0016p1_2_1.png'
     #fileID='0025p1_4_1.png'
     #fileID='0036p1_1_1.png'
@@ -68,6 +68,7 @@ if __name__ == '__main__':
         scale_factor= 8
         size_nhood_variance=5
         NL=33
+        R_scale=5
 
         logging.info('Processing image {}'.format(filename))
         im_norm, im_resized = process_img(image, smooth_factor, scale_factor)
@@ -102,7 +103,6 @@ if __name__ == '__main__':
             print('Do you want to change your coordinates?')
             decision=input('Answer yes or no: ')
 
-        
 
         f.write('{} \t {} \t {}\n'.format(filename, center[0], center[1]))
 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         plt.colorbar()
         plt.show()
 
-        logging.info('Finding teh border.')
+        logging.info('Finding the border.')
         roughborder,bordofinale_x,bordofinale_y=define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks)
         fill=ndimage.binary_fill_holes(roughborder).astype(int)
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         logging.info('Refining segmentation results.')
         for _ in range(0, len(bordofinale_x)):
             center_raff = [bordofinale_x[_], bordofinale_y[_]]
-            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/5),NL)
+            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/R_scale),NL)
             roughborder_raff, _ , _ = define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks_raff)
             roughborder+=roughborder_raff
 
