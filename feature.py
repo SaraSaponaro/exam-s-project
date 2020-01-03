@@ -3,6 +3,7 @@ import numpy as np
 import imageio
 import logging
 import glob
+import os 
 import statistics as stat
 from skimage import measure
 from define_border import distanza
@@ -130,7 +131,10 @@ if __name__ == '__main__':
     logging.info('Reading files.')
     files=glob.glob('result/*_resized.png')
     masks=glob.glob('result/*_mask.png')
-    center_x, center_y = np.loadtxt('center_list.txt', unpack=True, usecols=(1,2))
+    txt='center_list.txt'
+    center_x, center_y = np.loadtxt(txt, unpack=True, usecols=(1,2))
+    name= np.loadtxt(txt, unpack=True, usecols=(0), dtype='str')
+    name=name.tolist()
     mass_area_list=[]
     mass_perimeter_list=[]
     circularity_list=[]
@@ -147,7 +151,10 @@ if __name__ == '__main__':
     kurtosis_list=[]
     skew_list=[]
 
-    for _ in range(0, len(files)):
+    for _ in range(0, len(name)):
+        filename, file_extension = os.path.splitext(masks[_])
+        filename=os.path.basename(filename)
+        index = name.index(filename)
         mask_only=imageio.imread(masks[_])
         img=imageio.imread(files[_])
         mass=img*mask_only
@@ -159,13 +166,13 @@ if __name__ == '__main__':
         mass_perimeter_list.append(p)
 
         circularity_list.append(circularity(area,p))
-        d, d_mean, __ = mu_NRL(mask_only, center_x[_], center_y[_], p)     #fai file con center
+        d, d_mean, __ = mu_NRL(mask_only, center_x[index], center_y[index], p)     #fai file con center
 
         mu_NRL_list.append(d_mean)
         sigma_NRL_list.append(sigma_NRL(d, d_mean, p))
         cross_zero_list.append(cross_zero(d, d_mean))
 
-        rmax, rmin = rope(mass, mask_only, center_x[_], center_y[_])
+        rmax, rmin = rope(mass, mask_only, center_x[index], center_y[index])
 
         rope_max_list.append(rmax)
         rope_min_list.append(rmin)
