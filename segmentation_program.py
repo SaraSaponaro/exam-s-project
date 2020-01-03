@@ -40,9 +40,6 @@ def find_center(x_max, y_max):
     return (center)
 
 if __name__ == '__main__':
-
-
-
     logging.info('Si legge il file.')
     #fileID='0016p1_2_1.png'
     #fileID='0025p1_4_1.png'
@@ -51,7 +48,7 @@ if __name__ == '__main__':
     #read all files
     fileID = glob.glob('img/*.png')
 
-    for _ in range (2, len(fileID)):
+    for _ in range (7, len(fileID)):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[_])
 
