@@ -154,6 +154,7 @@ if __name__ == '__main__':
     for _ in range(0, len(name)):
         filename, file_extension = os.path.splitext(masks[_])
         filename=os.path.basename(filename)
+        filename=filename[:-5]
         index = name.index(filename)
         mask_only=imageio.imread(masks[_])
         img=imageio.imread(files[_])
