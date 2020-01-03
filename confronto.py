@@ -13,10 +13,15 @@ for i in range(0,len(confronto),1):
     dest = filename+'.png'
     os.rename(source, dest)
 '''
-mask = glob.glob('result/0036p1_1_1_mask.png')
-confronto = glob.glob('ref/0036p1_1_1_mass_mask.png')
 
-plt.imshow(Image.open(confronto[0]), cmap='gray')
-plt.imshow(Image.open(mask[0]), alpha=0.5, cmap='gray')
+
+mask = glob.glob('result/0069p1_4_2_mask_r10.png')
+confronto = glob.glob('result/0069p1_4_2_mask.png')
+loro=glob.glob('ref/0069p1_4_2_mass_mask.png')
+
+plt.imshow(Image.open(confronto[0]), cmap='gray', label='R/5')
+plt.imshow(Image.open(mask[0]), alpha=0.5, cmap='gray', label='R/10')
+plt.imshow(Image.open(loro[0]), alpha=0.3, cmap='hot', label='retico')
 #plt.imshow(Image.open('ref/0036p1_1_1_resized.png'), alpha=0.7)
+plt.legend()
 plt.show()
