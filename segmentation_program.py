@@ -6,6 +6,7 @@ import logging
 import glob
 from scipy.signal import convolve2d
 from skimage.transform import  rescale
+from skimage.filters import  median
 from PIL import Image
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
@@ -13,14 +14,26 @@ from define_border import define_border_new, distanza
 logging.basicConfig(level=logging.INFO)
 
 def process_img(image, smooth_factor, scale_factor):
+    '''try logaritmic trasformation an averange filter'''
+    im_log=255*np.log10(image+1)
+    im_log=im_log.astype('uint8')
+    im_median= median(im_log, np.ones((3,3)))
+    im_res = rescale(im_median, 1/scale_factor)
+
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
     im_resized = rescale(im_conv, 1/scale_factor)
     im_norm = im_resized/np.max(im_resized)
 
-    plt.figure()
+    plt.figure(1)
     plt.title('normalized image')
     plt.imshow(im_norm)
+    plt.grid(True)
+    plt.colorbar()
+    plt.show()
+    plt.figure(2)
+    plt.title('log image')
+    plt.imshow(im_res)
     plt.grid(True)
     plt.colorbar()
     plt.show()
@@ -90,7 +103,7 @@ if __name__ == '__main__':
             y_max,x_max=np.where(ROI==np.max(ROI))
             center = find_center(x_max, y_max)
 
-            
+
             logging.info('Showing ROI and center.' )
             plt.figure()
             plt.title('ROI')
