@@ -84,34 +84,55 @@ def define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
         bordoo_x=[]
         bordoo_y=[]
         bordoo_x, bordoo_y = find_border(_, p_x, p_y)
-        roughborder[bordoo_y, bordoo_x]=1
+        roughborder[bordoo_y, bordoo_x]=0
         bordofinale_x += bordoo_x
         bordofinale_y += bordoo_y
 
     return roughborder, bordofinale_x,bordofinale_y
 
 def define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
-    J = generic_filter(im_norm, np.std, size=size_nhood_variance)
-    roughborder=np.zeros(np.shape(im_norm))
-
+    roughborder=np.zeros(np.shape(im_norm))            #np.zeros(np.shape(im_norm))
+   
     p_x=[]
     p_y=[]
     d=[]
 
-
     rr_arr=np.array([0])
     cc_arr=np.array([0])
-
-
     for _ in range (0, NL):
-        Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
-        Jmasked=Jmasked*imbinarize(ROI)
-        w = np.where(Jmasked==np.max(Jmasked))
+        Jmasked=im_norm*Ray_masks[_]     #J*raggi=maschera dell'img
+        Jmasked=Jmasked*ROI
+        Jmasked[Jmasked==0]=10
+        w = np.where(Jmasked==np.min(Jmasked))
         p_y.append(w[0][0])
         p_x.append(w[1][0])
         d.append(Jmasked[w[0][0],w[1][0]])
 
+    for _ in range(0,NL-1):
+        coords = line_nd((p_x[_],p_y[_]),(p_x[_+1],p_y[_+1]))
+        roughborder[coords[1],coords[0]]=1
+        rr_arr=np.hstack((rr_arr,coords[0]))
+        cc_arr=np.hstack((cc_arr,coords[1]))
 
+    return roughborder, rr_arr, cc_arr
+
+
+def define_border_final(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
+    roughborder=np.zeros(np.shape(im_norm))            #np.zeros(np.shape(im_norm))
+    p_x=[]
+    p_y=[]
+    d=[]
+
+    rr_arr=np.array([0])
+    cc_arr=np.array([0])
+    for _ in range (0, NL):
+        Jmasked=im_norm*Ray_masks[_]     #J*raggi=maschera dell'img
+        Jmasked=Jmasked*ROI
+        w = np.where(Jmasked==np.max(Jmasked))
+        p_y.append(w[0][0])
+        p_x.append(w[1][0])
+        d.append(Jmasked[w[0][0],w[1][0]])
+    
     for _ in range(0,NL-1):
         coords = line_nd((p_x[_],p_y[_]),(p_x[_+1],p_y[_+1]))
         roughborder[coords[1],coords[0]]=1

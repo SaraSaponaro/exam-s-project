@@ -17,7 +17,7 @@ for i in range(0,len(confronto),1):
 
 mask = glob.glob('result/0069p1_4_2_mask_r10.png')
 confronto = glob.glob('result/0069p1_4_2_mask.png')
-loro=glob.glob('ref/0069p1_4_2_mass_mask.png')
+loro=glob.glob('ref/0036p1_1_1_mass_mask.png')
 
 plt.imshow(Image.open(confronto[0]), cmap='gray', label='R/5')
 plt.imshow(Image.open(mask[0]), alpha=0.5, cmap='gray', label='R/10')

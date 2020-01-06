@@ -32,7 +32,7 @@ def draw_radial_lines(ROI,center,R,NL):
         line1=np.column_stack((iir,jjr))
 
         'ho creato una matrice (futura maschera) di zeri'
-        Ray_mask=np.zeros(np.shape(ROI))
+        Ray_mask=np.zeros(np.shape(ROI))       #cambiato zeros 
 
         for ___ in range(0,len(line1)):
             i=line1[___][0]
