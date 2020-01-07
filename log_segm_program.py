@@ -6,7 +6,7 @@ import logging
 import glob
 import time
 from scipy.signal import convolve2d
-from skimage.transform import  rescale
+from skimage.transform import  rescale, resize
 from skimage.filters import  median
 from PIL import Image
 from scipy import ndimage
@@ -20,7 +20,7 @@ def process_img(image, smooth_factor, scale_factor):
     im_log=255*np.log10(image+1)
     im_log=im_log.astype('uint8')
     im_median= median(im_log, np.ones((5,5)))
-    im_res = rescale(im_median, 1/scale_factor)
+    im_res = resize(im_median, (126,126))
     im_log_n = im_res/np.max(im_res)
 
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
@@ -181,7 +181,7 @@ if __name__ == '__main__':
         plt.title('confronto.')
         conf=imageio.imread('ref/0036p1_1_1_mass_mask.png')
         plt.imshow(conf)
-        plt.imshow(im_norm, alpha=0.3)
+        plt.imshow(image_n, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
         plt.show()
         
