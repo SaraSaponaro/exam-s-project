@@ -16,81 +16,7 @@ def imbinarize(img):
     img[img < thresh] = 0
     return img
 
-def define_border(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
-
-    J = generic_filter(im_norm, np.std, size=size_nhood_variance)
-
-    #plt.figure('filtro std')
-    #plt.imshow(J)
-    #plt.show()
-
-    roughborder=np.zeros(np.shape(im_norm))
-
-    p_x=[]
-    p_y=[]
-    d=[]
-
-    bordofinale_x=[]
-    bordofinale_y=[]
-
-    for _ in range (0, NL):
-        Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
-        Jmasked=Jmasked*imbinarize(ROI)
-        w = np.where(Jmasked==np.max(Jmasked))
-        p_y.append(w[0][0])
-        p_x.append(w[1][0])
-        d.append(Jmasked[w[0][0],w[1][0]])
-
-    "riempio il bordo tra due elementi adiacenti di p_x,p_y"
-    def find_border(_, p_x, p_y):
-
-        'liste vuote che riempirò con i pixel trovati'
-        bordo_x=[]
-        bordo_y=[]
-
-        distanza_finale=100
-        while (distanza_finale >= 1):     #finchè non raggiungo il pixel stop
-
-            'trovo i pixel vicini'
-            vicino_x=[p_x[_]-1,p_x[_]-1,p_x[_],p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]+1,p_x[_]-1]
-            vicino_y=[p_y[_],p_y[_]+1,p_y[_]+1,p_y[_]+1,p_y[_],p_y[_]-1,p_y[_]-1,p_y[_]-1]
-
-            'trovo la distanza e scelgo quella minima'
-            distanza_list=[]
-            c=0
-            for __ in range(0,len(vicino_x)):
-                c=distanza(vicino_x[__],vicino_y[__],p_x[_+1], p_y[_+1])
-                distanza_list.append(c)
-
-            distanza_list=np.asarray(distanza_list)
-            'scelgo il pixel a cui mi corrisponde la distanza minima rispetto a quello di stop'
-            d=np.argmin(distanza_list)                 #np.where(distanza_list==distanza_list.min())
-            distanza_finale=distanza_list[int(d)]
-
-            'coordinate del pixel prescelto'
-            pixel_x=vicino_x[int(d)]
-            pixel_y=vicino_y[int(d)]
-
-            'mi salvo la posizione del pixel, perchè alla fine dovrò concatenare tutte queste liste ed otterrò il bordo'
-            bordo_x.append(pixel_x)
-            bordo_y.append(pixel_y)
-
-            'il mio nuovo pixel da cui trovare tutti i vicini è quello prescelto'
-            p_x[_]=pixel_x
-            p_y[_]=pixel_y
-        return bordo_x, bordo_y
-
-    for _ in range(0,NL-1):
-        bordoo_x=[]
-        bordoo_y=[]
-        bordoo_x, bordoo_y = find_border(_, p_x, p_y)
-        roughborder[bordoo_y, bordoo_x]=0
-        bordofinale_x += bordoo_x
-        bordofinale_y += bordoo_y
-
-    return roughborder, bordofinale_x,bordofinale_y
-
-def define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
+def define_border_min(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     roughborder=np.zeros(np.shape(im_norm))            #np.zeros(np.shape(im_norm))
    
     p_x=[]
@@ -117,7 +43,7 @@ def define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     return roughborder, rr_arr, cc_arr
 
 
-def define_border_final(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
+def define_border_max(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     roughborder=np.zeros(np.shape(im_norm))            #np.zeros(np.shape(im_norm))
     J=generic_filter(im_norm, np.std, size=size_nhood_variance)
     p_x=[]

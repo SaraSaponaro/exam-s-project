@@ -11,7 +11,7 @@ from skimage.filters import  median
 from PIL import Image
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
-from define_border import define_border_new, distanza, define_border_final
+from define_border import define_border_min, distanza, define_border_max
 logging.basicConfig(level=logging.INFO)
 
 def process_img(image, smooth_factor, scale_factor):
@@ -21,20 +21,20 @@ def process_img(image, smooth_factor, scale_factor):
     im_log=im_log.astype('uint8')
     im_median= median(im_log, np.ones((5,5)))
     im_res = rescale(im_median, 1/scale_factor)
-    im_norm = im_res/np.max(im_res)
+    im_log_n = im_res/np.max(im_res)
 
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
-    image_modify = rescale(image, 1/scale_factor)/np.max(image)
+    image_n = rescale(im_conv, 1/scale_factor)/np.max(im_conv)
     
     plt.figure()
-    plt.title('log image')
-    plt.imshow(image_modify)
+    plt.title('image')
+    plt.imshow(image_n)
     plt.grid(True)
     plt.colorbar()
     plt.show()
 
-    return im_norm, im_res, image_modify
+    return im_log_n, im_res, image_n
 
 
 def find_center(x_max, y_max):
@@ -51,16 +51,12 @@ def find_center(x_max, y_max):
 
 if __name__ == '__main__':
     logging.info('Reading files')
-    #fileID='0016p1_2_1.png'
-    #fileID='0025p1_4_1.png'
-    fileID='0036p1_1_1.png'
-
     #read all files
     fileID = glob.glob('img/*.png')
 
     for _ in range (0, 1):
         f = open('center_list.txt', 'a')
-        image=imageio.imread(fileID[0])
+        image=imageio.imread(fileID[_])
 
 
         filename, file_extension = os.path.splitext(fileID[_])
@@ -82,7 +78,7 @@ if __name__ == '__main__':
         R_scale=5
 
         logging.info('Processing image {}'.format(filename))
-        im_norm, im_resized , image_modify= process_img(image, smooth_factor, scale_factor)
+        im_log_n, im_resized , image_n= process_img(image, smooth_factor, scale_factor)
 
         logging.info('Starting the image segmentation.')
 
@@ -97,8 +93,8 @@ if __name__ == '__main__':
             x2=int(input('Enter x2: '))
 
 
-            ROI=np.ones(np.shape(im_norm))
-            ROI[y1:y2,x1:x2]=im_norm[y1:y2,x1:x2]
+            ROI=np.ones(np.shape(image_n))
+            ROI[y1:y2,x1:x2]=image_n[y1:y2,x1:x2]
             y_max,x_max=np.where(ROI==np.min(ROI))
             center = find_center(x_max, y_max)
 
@@ -106,7 +102,7 @@ if __name__ == '__main__':
             logging.info('Showing ROI and center.' )
             plt.figure()
             plt.title('ROI')
-            plt.imshow(im_norm)
+            plt.imshow(image_n)
             plt.imshow(ROI, alpha=0.3)
             plt.plot(center[0], center[1], 'r.')
             plt.colorbar()
@@ -127,100 +123,69 @@ if __name__ == '__main__':
         plt.figure()
         plt.title('Some of rays found.')
         plt.imshow(Ray_masks[0])
-        plt.imshow(Ray_masks[9])
-        plt.imshow(Ray_masks[20])
-        plt.imshow(Ray_masks[27])
-        plt.imshow(im_norm, alpha=0.3)
+        plt.imshow(Ray_masks[9],alpha=0.7)
+        plt.imshow(Ray_masks[20],alpha=0.7)
+        plt.imshow(Ray_masks[27],alpha=0.7)
+        plt.imshow(image_n, alpha=0.3)
         #plt.imshow(ROI, alpha=0.5)
         plt.plot(center[0],center[1], 'r.')
         plt.colorbar()
         plt.show()
 
         logging.info('Finding the border.')
-        roi=np.zeros(np.shape(im_norm))
+        roi=np.zeros(np.shape(image_n))
         roi[y1:y2,x1:x2]=1
 
-        roughborder,bordofinale_x,bordofinale_y=define_border_final(image_modify, NL, roi,size_nhood_variance, Ray_masks)
+        roughborder,bordofinale_x,bordofinale_y=define_border_max(image_n, NL, roi,size_nhood_variance, Ray_masks)
         fill=ndimage.binary_fill_holes(roughborder).astype(int)
 
         plt.figure()
-        plt.title('Mask of segmented mass.')
+        plt.title('Mask of segmented mass(first_step).')
         plt.imshow(fill)
         plt.show()
 
         logging.info('Refining segmentation results.')
-        roughborder_r=np.zeros(np.shape(im_norm))
-        bbxr=[]
-        bbyr=[]
+        roughborder_r=np.zeros(np.shape(im_log_n))
+        xx_r=[]
+        yy_r=[]
         for _ in range(0,len(bordofinale_x)):
             center_raff = [bordofinale_x[_], bordofinale_y[_]]
-            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/5),NL)
-            roughborder_raff, bbx , bby = define_border_new(im_norm, NL, fill ,size_nhood_variance, Ray_masks_raff)
+            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/R_scale),NL)
+            roughborder_raff, _x , _y = define_border_min(im_log_n, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder_r+=roughborder_raff
-            bbxr=np.hstack((bbxr,bbx))
-            bbyr=np.hstack((bbyr,bby))
+            xx_r=np.hstack((xx_r,_x))
+            yy_r=np.hstack((yy_r,_y))
         fill_raff=ndimage.binary_fill_holes(roughborder_r).astype(int)
         
+    
         plt.figure()
-        plt.title('prova')
-        plt.imshow(fill)
-        plt.plot(bbx,bby,'r.') 
-        plt.plot(center_raff[0],center_raff[1],'g.')
-        plt.imshow(Ray_masks_raff[20])
-        plt.show()
-        
-        plt.figure()
-        plt.title('FILL_RAFF.Final mask of segmented mass.')
+        plt.title('Final mask of segmented mass.')
         plt.imshow(fill_raff)
         plt.show()
         
-        '''
-        roughborder_f=np.zeros(np.shape(im_norm))
-        for _ in range(0,len(bbxr)):
-            center_final = [int(bbxr[_]), int(bbyr[_])]
-            Ray_masks_final = draw_radial_lines(ROI,center_final,int(R/5),NL)
-            roughborder_final, _ , _ = define_border_final(image_modify, NL, fill_raff,size_nhood_variance, Ray_masks_final)
-            roughborder_f+=roughborder_final
-
-
-        fill_final=ndimage.binary_fill_holes(roughborder_f).astype(int)
 
 
 
     
         logging.info('Showing result')
-        mass_only = fill_final*image_modify
+        mass_only = fill_raff*image_n
 
 
-
-        prova=np.reshape(mass_only,-1)
-        plt.figure()
-        v, b, _ =plt.hist(prova, bins='auto')
-        plt.show()
-        '''
-        '''
-        for r in range(0, len(prova)):
-            if prova[r]>mean_s+np.min(prova):
-                #print('hot',r, prova[r],mean_s)
-                prova[r]=mean_s
-        '''
-        '''
         plt.figure()
         plt.title('Segmented mass.')
         plt.imshow(mass_only)
         plt.colorbar()
         plt.show()
-        '''
-
-        '''
-        conf=imageio.imread('ref/0036p1_1_1_mass_mask.png')
+        
         plt.figure()
+        plt.title('confronto.')
+        conf=imageio.imread('ref/0036p1_1_1_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(im_norm, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
         plt.show()
-        '''
-        '''
+        
+        
         logging.info('Savening result.')
         im = im_resized.astype(np.uint8)
         im = Image.fromarray(im, mode='P')
@@ -231,4 +196,4 @@ if __name__ == '__main__':
         im1.save(mask_out)
 
         f.close()
-        '''
+        
