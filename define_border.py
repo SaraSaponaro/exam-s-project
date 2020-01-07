@@ -109,7 +109,7 @@ def define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
         d.append(Jmasked[w[0][0],w[1][0]])
 
     for _ in range(0,NL-1):
-        coords = line_nd((p_x[_],p_y[_]),(p_x[_+1],p_y[_+1]))
+        coords = line_nd((p_y[_],p_x[_]),(p_y[_+1],p_x[_+1]))
         roughborder[coords[1],coords[0]]=1
         rr_arr=np.hstack((rr_arr,coords[0]))
         cc_arr=np.hstack((cc_arr,coords[1]))
@@ -119,14 +119,14 @@ def define_border_new(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
 
 def define_border_final(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     roughborder=np.zeros(np.shape(im_norm))            #np.zeros(np.shape(im_norm))
+    J=generic_filter(im_norm, np.std, size=size_nhood_variance)
     p_x=[]
     p_y=[]
     d=[]
-
     rr_arr=np.array([0])
     cc_arr=np.array([0])
     for _ in range (0, NL):
-        Jmasked=im_norm*Ray_masks[_]     #J*raggi=maschera dell'img
+        Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
         Jmasked=Jmasked*ROI
         w = np.where(Jmasked==np.max(Jmasked))
         p_y.append(w[0][0])
@@ -134,7 +134,7 @@ def define_border_final(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
         d.append(Jmasked[w[0][0],w[1][0]])
     
     for _ in range(0,NL-1):
-        coords = line_nd((p_x[_],p_y[_]),(p_x[_+1],p_y[_+1]))
+        coords = line_nd((p_y[_],p_x[_]),(p_y[_+1],p_x[_+1]))
         roughborder[coords[1],coords[0]]=1
         rr_arr=np.hstack((rr_arr,coords[0]))
         cc_arr=np.hstack((cc_arr,coords[1]))

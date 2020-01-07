@@ -6,6 +6,7 @@ import logging
 import glob
 import time
 from scipy.signal import convolve2d
+from skimage.draw import line_nd
 from skimage.transform import  rescale
 from skimage.filters import  median
 from PIL import Image
@@ -22,11 +23,12 @@ def process_img(image, smooth_factor, scale_factor):
     im_median= median(im_log, np.ones((5,5)))
     im_res = rescale(im_median, 1/scale_factor)
     im_norm = im_res/np.max(im_res)
-
+    
+    
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
     image_modify = rescale(image, 1/scale_factor)/np.max(image)
-    
+
     plt.figure()
     plt.title('log image')
     plt.imshow(image_modify)
@@ -63,7 +65,7 @@ if __name__ == '__main__':
         image=imageio.imread(fileID[0])
 
 
-        filename, file_extension = os.path.splitext(fileID[_])
+        filename, file_extension = os.path.splitext(fileID[0])
         filename=os.path.basename(filename)
         path_out = 'result/'
 
@@ -126,11 +128,8 @@ if __name__ == '__main__':
 
         plt.figure()
         plt.title('Some of rays found.')
-        plt.imshow(Ray_masks[0])
-        plt.imshow(Ray_masks[9])
-        plt.imshow(Ray_masks[20])
-        plt.imshow(Ray_masks[27])
-        plt.imshow(im_norm, alpha=0.3)
+        plt.imshow(Ray_masks[0])      
+        plt.imshow(image_modify, alpha=0.3)
         #plt.imshow(ROI, alpha=0.5)
         plt.plot(center[0],center[1], 'r.')
         plt.colorbar()
@@ -148,87 +147,51 @@ if __name__ == '__main__':
         plt.imshow(fill)
         plt.show()
 
+        #FINO A QUI TUTTO OK
+        
         logging.info('Refining segmentation results.')
-        roughborder_r=np.zeros(np.shape(im_norm))
-        bbxr=[]
-        bbyr=[]
-        for _ in range(0,len(bordofinale_x)):
-            center_raff = [bordofinale_x[_], bordofinale_y[_]]
-            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/5),NL)
-            roughborder_raff, bbx , bby = define_border_new(im_norm, NL, fill ,size_nhood_variance, Ray_masks_raff)
-            roughborder_r+=roughborder_raff
-            bbxr=np.hstack((bbxr,bbx))
-            bbyr=np.hstack((bbyr,bby))
-        fill_raff=ndimage.binary_fill_holes(roughborder_r).astype(int)
+        p_x=[]
+        p_y=[]
+        d=[]
+        rr_arr=np.array([0])
+        cc_arr=np.array([0])
+        p=np.zeros(np.shape(im_norm))
+        
+        mask=image_modify*fill
+        
+        matrix=np.zeros(np.shape(im_norm))
+        for _ in range (0, len(bordofinale_x)):
+            raggi=np.zeros(np.shape(im_norm))
+            coords = line_nd((bordofinale_x[_],bordofinale_y[_]),(center[0],center[1]))
+            raggi[coords[1][0:2],coords[0][0:2]]=1
+            matrix =mask * raggi
+            #matrix[matrix==0]=10
+            w = np.where(matrix==np.max(matrix))
+            p+=matrix
+            p_y.append(w[0][0])
+            p_x.append(w[1][0])
+            d.append(matrix[w[0][0],w[1][0]])
+        roughborder_n=np.zeros(np.shape(im_norm)) 
+        for _ in range(0,len(bordofinale_x)-1):
+            coords = line_nd((p_y[_],p_x[_]),(p_y[_+1],p_x[_+1]))
+            roughborder_n[coords[1],coords[0]]=1
+            rr_arr=np.hstack((rr_arr,coords[0]))
+            cc_arr=np.hstack((cc_arr,coords[1]))
+            
+        fill_raff=ndimage.binary_fill_holes(roughborder_n).astype(int)
         
         plt.figure()
         plt.title('prova')
-        plt.imshow(fill)
-        plt.plot(bbx,bby,'r.') 
-        plt.plot(center_raff[0],center_raff[1],'g.')
-        plt.imshow(Ray_masks_raff[20])
-        plt.show()
-        
-        plt.figure()
-        plt.title('FILL_RAFF.Final mask of segmented mass.')
         plt.imshow(fill_raff)
-        plt.show()
-        
-        '''
-        roughborder_f=np.zeros(np.shape(im_norm))
-        for _ in range(0,len(bbxr)):
-            center_final = [int(bbxr[_]), int(bbyr[_])]
-            Ray_masks_final = draw_radial_lines(ROI,center_final,int(R/5),NL)
-            roughborder_final, _ , _ = define_border_final(image_modify, NL, fill_raff,size_nhood_variance, Ray_masks_final)
-            roughborder_f+=roughborder_final
+       
 
-
-        fill_final=ndimage.binary_fill_holes(roughborder_f).astype(int)
-
-
-
-    
-        logging.info('Showing result')
-        mass_only = fill_final*image_modify
-
-
-
-        prova=np.reshape(mass_only,-1)
-        plt.figure()
-        v, b, _ =plt.hist(prova, bins='auto')
-        plt.show()
-        '''
-        '''
-        for r in range(0, len(prova)):
-            if prova[r]>mean_s+np.min(prova):
-                #print('hot',r, prova[r],mean_s)
-                prova[r]=mean_s
-        '''
-        '''
-        plt.figure()
-        plt.title('Segmented mass.')
-        plt.imshow(mass_only)
-        plt.colorbar()
-        plt.show()
-        '''
-
-        '''
-        conf=imageio.imread('ref/0036p1_1_1_mass_mask.png')
+        conf=imageio.imread('ref/0016p1_2_1_mass_mask.png')
         plt.figure()
         plt.imshow(conf)
-        plt.imshow(im_norm, alpha=0.3)
-        plt.imshow(mass_only, alpha=0.7)
+        plt.imshow(fill_raff*image_modify, alpha=0.6)
+        plt.imshow(fill*image_modify, alpha=0.6)
         plt.show()
-        '''
-        '''
-        logging.info('Savening result.')
-        im = im_resized.astype(np.uint8)
-        im = Image.fromarray(im, mode='P')
-        im.save(file_out)
-
-        fill_raff = fill_raff.astype(np.int8)
-        im1 = Image.fromarray(fill, mode='L')
-        im1.save(mask_out)
-
-        f.close()
-        '''
+        
+        
+        
+        
