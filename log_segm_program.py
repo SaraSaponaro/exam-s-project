@@ -123,7 +123,9 @@ if __name__ == '__main__':
             decision=input('Answer yes or no: ')
 
         f.write('{} \t {} \t {}\n'.format(filename, center[0], center[1]))
-
+        
+        logging.info('Finding the border.')
+        
         img=np.zeros(np.shape(image_n))
         val=threshold_yen(image_n)
         img[image_n >= val] = 1
@@ -134,78 +136,36 @@ if __name__ == '__main__':
         plt.plot(center[0], center[1], 'r.')
         plt.show()
 
+        fill=np.zeros(np.shape(image_n))
         contours = measure.find_contours(img*ROI, 0)
         arr=  contours[0]
         arr = arr.flatten('F')
+        arr=arr.astype('int')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
-
-
-
-        logging.info('Drawing radial lines.')
+        fill[y,x]=1
+        fill=ndimage.binary_fill_holes(fill).astype(int)
+        
         #define length of ray.
         R=int(distanza(x1,y1,x2,y2)/2)
-        '''
-        Ray_masks=draw_radial_lines(ROI,center,R,NL)
-
-        plt.figure()
-        plt.title('Some of rays found.')
-        plt.imshow(Ray_masks[0])
-        plt.imshow(Ray_masks[9],alpha=0.7)
-        plt.imshow(Ray_masks[20],alpha=0.7)
-        plt.imshow(Ray_masks[27],alpha=0.7)
-        plt.imshow(image_n, alpha=0.3)
-        #plt.imshow(ROI, alpha=0.5)
-        plt.plot(center[0],center[1], 'r.')
-        plt.colorbar()
-        plt.show()
-        '''
-        logging.info('Finding the border.')
         roi=np.zeros(np.shape(image_n))
         roi[y1:y2,x1:x2]=1
-        '''
-        roughborder,bordofinale_y,bordofinale_x=define_border_max(image_n, NL, roi,size_nhood_variance, Ray_masks)
-        fill=ndimage.binary_fill_holes(roughborder).astype(int)
-
-        plt.figure()
-        plt.title('Mask of segmented mass(first_step).')
-        plt.imshow(fill)
-        plt.show()
-        '''
+  
         logging.info('Refining segmentation results.')
         roughborder_r=np.zeros(np.shape(im_log_n))
 
         xx_r=[]
         yy_r=[]
-
-        
-        p=np.zeros(np.shape(im_log_n))
-        pp=np.zeros(np.shape(im_log_n))
-
         for _ in range(0,len(x)):
-            
-            center_raff = [int(x[_]), int(y[_])]
-            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(R/R_scale),NL)
-            roughborder_raff, _y , _x = define_border_max(img*ROI, NL, roi ,size_nhood_variance, Ray_masks_raff)
-            #roughborder_raff, _y , _x = define_border_min(im_log_n, NL, roi ,size_nhood_variance, Ray_masks_raff)
-            p += Ray_masks_raff[3]
-            pp += roughborder_raff
+            center_raff = [x[_], y[_]]
+            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(3),NL)
+            roughborder_raff, _y , _x = define_border_max(img*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder_r+=roughborder_raff
-            
 
             xx_r=np.hstack((xx_r,_x))
             yy_r=np.hstack((yy_r,_y))
-        
-        plt.figure('roughborder_r')
-        plt.imshow(roughborder_r)
-        plt.figure('rmr 3')
-        plt.imshow(p)
-        plt.figure('roughborder_raff')
-        plt.imshow(pp)
-
 
         fill_raff=ndimage.binary_fill_holes(roughborder_r).astype(int)
-
 
         plt.figure()
         plt.title('Final mask of segmented mass.')
@@ -214,7 +174,6 @@ if __name__ == '__main__':
 
         logging.info('Showing result')
         mass_only = fill_raff*image_n
-
 
         plt.figure()
         plt.title('Segmented mass.')
@@ -228,7 +187,7 @@ if __name__ == '__main__':
         plt.imshow(conf)
         plt.imshow(image_n, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
-        plt.show()'''
+        plt.show()
 
 
         logging.info('Savening result.')
@@ -239,5 +198,5 @@ if __name__ == '__main__':
         fill_raff = fill_raff.astype(np.int8)
         im1 = Image.fromarray(fill, mode='L')
         im1.save(mask_out)
-
+        '''
         f.close()

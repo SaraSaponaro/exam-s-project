@@ -56,20 +56,16 @@ def define_border_max(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
     d=[]
     rr_arr=np.array([])
     cc_arr=np.array([])
-    for _ in range (0, 3):
+    for _ in range (0, NL):
         Jmasked=J*Ray_masks[_]     #J*raggi=maschera dell'img
-        #Jmasked=Jmasked*ROI
-        # il problema è che quando moltiplco per jmasked poer ROI mi meette fuori uguale a zero. quando gli chiedo di trovare il massimo lui mi da giustamente 0
+        Jmasked=Jmasked*ROI
         w = np.where(Jmasked==np.max(Jmasked))
-        plt.imshow(Jmasked)
-        plt.show()
         p_y.append(w[0][0])
         p_x.append(w[1][0])
         d.append(Jmasked[w[0][0],w[1][0]])
-        print('x=', w[1][0],'   y=',w[0][0])
-    
 
-    for _ in range(0,NL-1):
+
+    for _ in range(0,len(p_x)-1):
         coords = line_nd((p_y[_],p_x[_]),(p_y[_+1],p_x[_+1]))
         roughborder[coords[0],coords[1]]=1
         rr_arr=np.hstack((rr_arr,coords[0]))
