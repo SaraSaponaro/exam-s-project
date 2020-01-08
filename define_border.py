@@ -71,4 +71,4 @@ def define_border_max(im_norm, NL, ROI,size_nhood_variance, Ray_masks):
         rr_arr=np.hstack((rr_arr,coords[0]))
         cc_arr=np.hstack((cc_arr,coords[1]))
 
-    return roughborder, rr_arr, cc_arr
+    return roughborder, rr_arr, cc_arr, p_x, p_y

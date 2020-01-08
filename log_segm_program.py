@@ -62,7 +62,7 @@ if __name__ == '__main__':
     fileID = glob.glob(file_path)
 
 
-    for _ in range (0,1):
+    for _ in range (3,4):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[_])
 
@@ -153,19 +153,28 @@ if __name__ == '__main__':
   
         logging.info('Refining segmentation results.')
         roughborder_r=np.zeros(np.shape(im_log_n))
-
+        __px=[]
+        __py=[]
         xx_r=[]
         yy_r=[]
         for _ in range(0,len(x)):
             center_raff = [x[_], y[_]]
-            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(3),NL)
-            roughborder_raff, _y , _x = define_border_max(img*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
+            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(R/2),NL)
+            roughborder_raff, _y , _x ,_px, _py= define_border_max(img*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder_r+=roughborder_raff
-
             xx_r=np.hstack((xx_r,_x))
             yy_r=np.hstack((yy_r,_y))
-
+            __px+=_px
+            __py+=_py
+            
+        xx_r=xx_r.astype('int')
+        yy_r=yy_r.astype('int')
+            
+        
         fill_raff=ndimage.binary_fill_holes(roughborder_r).astype(int)
+        #fill_raff[__py,__px]=0
+        #fill_raff[yy_r,xx_r]=0
+        
 
         plt.figure()
         plt.title('Final mask of segmented mass.')
@@ -181,15 +190,16 @@ if __name__ == '__main__':
         plt.colorbar()
         plt.show()
 
-        '''plt.figure()
+        plt.figure()
         plt.title('confronto.')
-        conf=imageio.imread('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(image_n, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
         plt.show()
 
 
+        '''
         logging.info('Savening result.')
         im = im_resized.astype(np.uint8)
         im = Image.fromarray(im, mode='P')
