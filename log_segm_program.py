@@ -53,7 +53,14 @@ def find_center(x_max, y_max):
 if __name__ == '__main__':
     logging.info('Reading files')
     #read all files
-    fileID = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample/*.png')
+    logging.info('Enter images path.')
+    logging.info('Luigi -> /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample/*.png')
+    logging.info('Sara -> /Users/sarasaponaro/Desktop/exam_cmpda/large_sample/*.png')
+
+    file_path=str(input('file path = : '))
+
+    fileID = glob.glob(file_path)
+
 
     for _ in range (0,1):
         f = open('center_list.txt', 'a')
@@ -97,7 +104,10 @@ if __name__ == '__main__':
             ROI=np.zeros(np.shape(image_n))                 #ones
             ROI[y1:y2,x1:x2]=image_n[y1:y2,x1:x2]
             y_max,x_max=np.where(ROI==np.max(ROI))
-            center = find_center(x_max[0], y_max[0])
+            if (len(x_max) == 1):
+                center = find_center(x_max, y_max)
+            else:
+                center = find_center(x_max[0], y_max[0])
 
 
             logging.info('Showing ROI and center.' )
@@ -119,8 +129,9 @@ if __name__ == '__main__':
         img[image_n >= val] = 1
         img[image_n < val] = 0
 
-        plt.figure('yen')
+        plt.figure('first step -> Yen threshoold')
         plt.imshow(img*ROI)
+        plt.plot(center[0], center[1], 'r.')
         plt.show()
 
         contours = measure.find_contours(img*ROI, 0)
@@ -128,7 +139,7 @@ if __name__ == '__main__':
         arr = arr.flatten('F')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
-        plt.plot( x, y,'.')
+
 
 
         logging.info('Drawing radial lines.')
@@ -166,15 +177,31 @@ if __name__ == '__main__':
 
         xx_r=[]
         yy_r=[]
+
+        
+        p=np.zeros(np.shape(im_log_n))
+        pp=np.zeros(np.shape(im_log_n))
+
         for _ in range(0,len(x)):
-            print(len(x)-_)
+            
             center_raff = [int(x[_]), int(y[_])]
             Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(R/R_scale),NL)
             roughborder_raff, _y , _x = define_border_max(img*ROI, NL, roi ,size_nhood_variance, Ray_masks_raff)
             #roughborder_raff, _y , _x = define_border_min(im_log_n, NL, roi ,size_nhood_variance, Ray_masks_raff)
+            p += Ray_masks_raff[3]
+            pp += roughborder_raff
             roughborder_r+=roughborder_raff
+            
+
             xx_r=np.hstack((xx_r,_x))
             yy_r=np.hstack((yy_r,_y))
+        
+        plt.figure('roughborder_r')
+        plt.imshow(roughborder_r)
+        plt.figure('rmr 3')
+        plt.imshow(p)
+        plt.figure('roughborder_raff')
+        plt.imshow(pp)
 
 
         fill_raff=ndimage.binary_fill_holes(roughborder_r).astype(int)
@@ -195,13 +222,13 @@ if __name__ == '__main__':
         plt.colorbar()
         plt.show()
 
-        plt.figure()
+        '''plt.figure()
         plt.title('confronto.')
         conf=imageio.imread('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(image_n, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
-        plt.show()
+        plt.show()'''
 
 
         logging.info('Savening result.')
