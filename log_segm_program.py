@@ -8,26 +8,34 @@ import time
 from scipy.signal import convolve2d
 from skimage.transform import  rescale, resize
 from skimage import measure
-from skimage.filters import  median, threshold_yen
+from skimage.filters import  median, threshold_yen , threshold_multiotsu
+from skimage import exposure
 from PIL import Image
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border_min, distanza, define_border_max
 logging.basicConfig(level=logging.INFO)
 
-def process_img(image, smooth_factor, scale_factor):
 
-    '''try logaritmic trasformation an averange filter'''
+
+def process_img(image, smooth_factor, scale_factor):
+    '''
+    C=np.min(image)/np.max(image)
+    #if C == 0:
+    p2, p98 = np.percentile(image, (2, 98))
+    image = exposure.rescale_intensity(image, in_range=(p2, p98))
+    '''
+    k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
+    im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
+    image_n = rescale(im_conv, 1/scale_factor)/np.max(im_conv)
+    
+    '''try logaritmic trasformation and averange filter'''
     im_log=255*np.log10(image+1)
     im_log=im_log.astype('uint8')
     im_median= median(im_log, np.ones((5,5)))
     im_res = resize(im_median, (126,126))
     im_log_n = im_res/np.max(im_res)
-
-    k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
-    im_conv=convolve2d(image, k )       #per ridurre il rumore (alte frequenze)
-    image_n = rescale(im_conv, 1/scale_factor)/np.max(im_conv)
-
+    
     plt.figure()
     plt.title('image')
     plt.imshow(image_n)
@@ -86,6 +94,7 @@ if __name__ == '__main__':
         R_scale=5
 
         logging.info('Processing image {}'.format(filename))
+             
         im_log_n, im_resized , image_n= process_img(image, smooth_factor, scale_factor)
 
         logging.info('Starting the image segmentation.')
@@ -130,14 +139,23 @@ if __name__ == '__main__':
         val=threshold_yen(image_n)
         img[image_n >= val] = 1
         img[image_n < val] = 0
-
-        plt.figure('first step -> Yen threshoold')
+        
+        plt.figure('first step -> Yen threshold')
         plt.imshow(img*ROI)
         plt.plot(center[0], center[1], 'r.')
         plt.show()
-
+        
+        logging.info('finding multiple otsu threshold')
+        p=np.zeros((y2-y1,x2-x1))
+        pp=np.zeros(np.shape(image_n))
+        p=img[y1:y2,x1:x2]*ROI[y1:y2,x1:x2]
+        val1, val2=threshold_multiotsu(p)
+        p[p>val2]=0
+        p[p<val1]=0
+        pp[y1:y2,x1:x2]=p
+        
         fill=np.zeros(np.shape(image_n))
-        contours = measure.find_contours(img*ROI, 0)
+        contours = measure.find_contours(pp, 0)
         arr=  contours[0]
         arr = arr.flatten('F')
         arr=arr.astype('int')
@@ -145,6 +163,10 @@ if __name__ == '__main__':
         x = arr[(int(len(arr)/2)):]
         fill[y,x]=1
         fill=ndimage.binary_fill_holes(fill).astype(int)
+        
+        plt.figure('second step -> mask after double th.')
+        plt.imshow(fill)
+        plt.show()
         
         #define length of ray.
         R=int(distanza(x1,y1,x2,y2)/2)
@@ -159,7 +181,7 @@ if __name__ == '__main__':
         yy_r=[]
         for _ in range(0,len(x)):
             center_raff = [x[_], y[_]]
-            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(R/2),NL)
+            Ray_masks_raff = draw_radial_lines(img*ROI,center_raff,int(R/R_scale),NL)
             roughborder_raff, _y , _x ,_px, _py= define_border_max(img*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder_r+=roughborder_raff
             xx_r=np.hstack((xx_r,_x))
@@ -192,7 +214,7 @@ if __name__ == '__main__':
 
         plt.figure()
         plt.title('confronto.')
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(image_n, alpha=0.3)
         plt.imshow(mass_only, alpha=0.7)
