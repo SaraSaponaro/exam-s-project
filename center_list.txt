@@ -87,3 +87,15 @@
 0011p1_1_2_2 	 66 	 80
 0011p1_1_2_2 	 65 	 80
 0036p1_1_1 	 62 	 60
+0036p1_1_1 	 62 	 60
+0036p1_1_1 	 62 	 60
+0036p1_1_1 	 62 	 60
+0036p1_1_1 	 62 	 60
+0036p1_1_1 	 62 	 60
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 84 	 69	 40	 40	 80	 85
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
+#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	#filename	 x_center	 y_center	 y1	 x1	 y2	 x2	0016p1_2_1 	 61 	 64	 48	 45	 81	 77
