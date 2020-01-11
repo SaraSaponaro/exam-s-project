@@ -9,7 +9,7 @@ from PIL import Image
 from scipy.signal import convolve2d
 from skimage.transform import  rescale, resize
 from skimage import measure
-from skimage.filters import  median, threshold_yen , threshold_multiotsu
+from skimage.filters import  median, threshold_yen , threshold_multiotsu, threshold_otsu
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border,distanza
@@ -51,7 +51,7 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
 def segmentation(file_path):
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/*.png')
-    for item in range(9,10):
+    for item in range(61,62):
     #for __,item in enumerate(fileID):
         f = open('center_list.txt', 'a')
         #f.write('#filename\t x_center\t y_center\t y1\t x1\t y2\t x2\n')
@@ -77,6 +77,8 @@ def segmentation(file_path):
         plt.figure()
         plt.title('image {}'.format(filename))
         plt.imshow(image_n)
+        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        plt.imshow(conf, alpha=0.1)
         plt.colorbar()
         plt.grid()
         plt.show()
@@ -115,11 +117,13 @@ def segmentation(file_path):
         
         logging.info('First step: finding the border using Yen threshold.')
         image_n=image_n/np.max(ROI)
-        
         image_yen = np.zeros(np.shape(image_n))
-        val = threshold_yen(image_n)
+        print('image_n = ',np.mean(image_n))
+        print('ROI =     ',np.mean(ROI/(np.max(ROI))))
+        val = threshold_yen(image_n) #- threshold_otsu(image_n)
         image_yen[image_n >= val] = 1
         image_yen[image_n < val] = 0
+        print('val =     ',val)
 
         if args.show != None:
             plt.figure()
@@ -131,8 +135,10 @@ def segmentation(file_path):
         logging.info('Second step: refining border using Otsu double threshold')
         image_otsu = np.zeros((y2-y1,x2-x1))
         matrix = np.zeros(np.shape(image_n))
-        image_otsu = image_yen[y1:y2,x1:x2]*ROI[y1:y2,x1:x2]
+        image_otsu = image_yen[y1:y2,x1:x2]*(ROI[y1:y2,x1:x2]/np.max(ROI))
         val1, val2 = threshold_multiotsu(image_otsu)
+        print('val1 =    ',val1)
+        print('val2 =    ',val2)
         image_otsu[image_otsu>val2] = 0
         image_otsu[image_otsu<val1] = 0
         matrix[y1:y2,x1:x2] = image_otsu
@@ -157,6 +163,7 @@ def segmentation(file_path):
         roughborder=np.zeros(np.shape(im_log_n))
         
         for _ in range(0,len(x)):
+            print(len(x)-_)
             center_raff = [x[_], y[_]]
             Ray_masks_raff = draw_radial_lines(image_yen*ROI,center_raff,int(R/R_scale),NL)
             roughborder_raff= define_border(image_yen*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
@@ -177,13 +184,15 @@ def segmentation(file_path):
             plt.colorbar()
             plt.show()
 
-            plt.figure()
-            plt.title('confronto.')
-            conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
-            plt.imshow(conf)
-            plt.imshow(image_n, alpha=0.3)
-            plt.imshow(fill_raff, alpha=0.7)
-            plt.show()
+        plt.figure()
+        plt.title('confronto.')
+        plt.subplot(1,2,1)
+        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        plt.imshow(conf)
+        plt.imshow(fill_raff, alpha=0.7)
+        plt.subplot(1,2,2)
+        plt.imshow(fill_raff)
+        plt.show()
 
         fill_raff = fill_raff.astype(np.int8)
         im1 = Image.fromarray(fill_raff, mode='L')
