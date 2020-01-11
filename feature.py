@@ -4,13 +4,11 @@ import imageio
 import logging
 import glob
 import os
-import pandas as pd 
-import statistics as stat
 from skimage import measure
 from define_border import distanza
-from scipy.stats import norm, kurtosis, skew
+from scipy.stats import  kurtosis, skew
 from scipy.spatial import ConvexHull
-import matplotlib.pyplot as plt
+
 
 
 def linear(x1,y1,x2,y2):
@@ -31,10 +29,10 @@ def mass_area(mask_only):
 
 def mass_perimeter(mask_only):
     """
-    Summing up the number of pixels on the boundary's mass 
+    Summing up the number of pixels on the boundary's mass
     """
     contours = measure.find_contours(mask_only, 0)
-    return np.shape(contours)[1]
+    return len(contours[0])
 
 def circularity(area, perimetro):
     c = 4*np.pi*area/(perimetro**2)
@@ -55,25 +53,25 @@ def NRL(mask_only, center_x, center_y, perimetro):
     d_mean = np.sum(d_norm)/perimetro
     s = np.sum((d-d_mean)**2)
     std = np.sqrt(s/perimetro)
-    return d, d_mean, d_norm, std 
+    return d, d_mean, d_norm, std
 
 def Radial_lenght_entropy(d_norm):
     """
     Find a probabilistic measure computed from the histogram of the normalized radial lenght.
     """
     n, bins, _ = plt.hist(d_norm, 5, density=1)
-
+    E=0
     for i in range(0, 5):
         mask1 = d_norm < bins[i+1]
         mask2 = d_norm > bins[i]
-        p = len(d_norm[np.logical_and(mask1,mask2)]))/len(d_norm)
-        E += p*np.log(p)
+        p = len(d_norm[np.logical_and(mask1,mask2)])/len(d_norm)
+        E += - p*np.log(p)
     return E
 
 def cross_zero(d,d_mean):
    """
    Counts the number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
-   """ 
+   """
    c = np.where(d>=d_mean)
    return len(c[0])
 
@@ -89,7 +87,7 @@ def axis(mask_only, center_x, center_y):
 
     for itemx, itemy in zip(x, y):
         a_value = []
-        
+
         for item_x, item_y in zip(x, y):
 
             if(itemx != item_x):
@@ -98,9 +96,9 @@ def axis(mask_only, center_x, center_y):
                 a = center_y-m*center_x-q
                 a_value.append(np.abs(a))
 
-        a_value = np.asarray(a_value) 
+        a_value = np.asarray(a_value)
         a_index = np.where(a_value == a_value.min())
-        R=distanza(x[_],y[_],x[a_index[0][0]], y[a_index[0][0]])
+        R=distanza(itemx,itemy,x[a_index[0][0]], y[a_index[0][0]])
         l_list.append(R)
     return np.min(l_list), np.max(l_list)
 
@@ -136,36 +134,35 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    files = glob.glob('result/*_resized.png')
-    masks = glob.glob('result/*_mask.png')
-    txt = 'center_list.txt'
-
-    center_x, center_y = np.loadtxt(txt, unpack=True, usecols=(1,2))
-    name = np.loadtxt(txt, unpack=True, usecols=(0), dtype='str')
-    name = name.tolist()
-
-
-    for _ in range(0, len(name)):
-        filename, file_extension = os.path.splitext(masks[_])
+    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    files.sort()
+    masks.sort()
+    nametxt = 'feature_ref.txt'
+    f = open(nametxt, 'w')
+    for index, item in enumerate(masks):
+        filename, file_extension = os.path.splitext(item)
         filename=os.path.basename(filename)
         filename=filename[:-5]
-        index = name.index(filename)
-        mask_only=imageio.imread(masks[_])
-        img=imageio.imread(files[_])
+        mask_only=imageio.imread(item)
+        img=imageio.imread(files[index])
         mass=img*mask_only
-
+        center=np.where(mass==np.max(mass))
+        center_x=center[1][0]
+        center_y=center[0][0]
+        
         area=mass_area(mask_only)
         p=mass_perimeter(mask_only)
-        circularity=circularity(area,p))
-        d, d_mean, d_norm, std = NRL(mask_only, center_x[index], center_y[index], p)    
+        circ=circularity(area,p)
+        d, d_mean, d_norm, std = NRL(mask_only, center_x, center_y, p)
         cross0=cross_zero(d, d_mean)
-        rmax, rmin = axis(mask_only, center_x[index], center_y[index])
+        rmax, rmin = axis(mask_only, center_x, center_y)
         vm, vs = var_ratio(d, d_mean)
         E=Radial_lenght_entropy(d_norm)
-        conv = convexity(mass, area))
+        conv = convexity(mass, area)
         im, istd = mass_intensity(mass)
         kurt = kurtosis(mass)
         sk = skew(mass)
-
-        f.open()
-        p.write()#18
+        f.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(area, p, circ ,d_mean, std, cross0))
+        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \n'.format(rmax, rmin, vm, vs, E, conv, im, istd))
+    f.close()
