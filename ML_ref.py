@@ -47,7 +47,7 @@ pl.suptitle("Histogram for each numeric input variable")
 
 
 #plt.figure()
-feature_names = ['mass', 'width', 'height', 'color_score']
+feature_names = ['area',' perimeter', 	 'circularity', 	' mu_NRL']
 X = mass[feature_names]
 y = mass['classe']
 cmap = cm.get_cmap('gnuplot')
