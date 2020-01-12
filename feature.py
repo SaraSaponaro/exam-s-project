@@ -60,6 +60,7 @@ def Radial_lenght_entropy(d_norm):
     Find a probabilistic measure computed from the histogram of the normalized radial lenght.
     """
     n, bins, _ = plt.hist(d_norm, 5, density=1)
+
     E=0
     for i in range(0, 5):
         mask1 = d_norm < bins[i+1]
@@ -140,29 +141,34 @@ if __name__ == '__main__':
     masks.sort()
     nametxt = 'feature_ref.txt'
     f = open(nametxt, 'w')
+    f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
+    f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
     for index, item in enumerate(masks):
         filename, file_extension = os.path.splitext(item)
-        filename=os.path.basename(filename)
-        filename=filename[:-5]
-        mask_only=imageio.imread(item)
-        img=imageio.imread(files[index])
-        mass=img*mask_only
+        filename = os.path.basename(filename)
+        filename = filename[:-10]           
+        "1: malignant 2:benign"
+        classe = filename[-1]         
+        mask_only = imageio.imread(item)
+        img = imageio.imread(files[index])
+        mass = img*mask_only
         center=np.where(mass==np.max(mass))
         center_x=center[1][0]
         center_y=center[0][0]
         
-        area=mass_area(mask_only)
-        p=mass_perimeter(mask_only)
-        circ=circularity(area,p)
-        d, d_mean, d_norm, std = NRL(mask_only, center_x, center_y, p)
-        cross0=cross_zero(d, d_mean)
+        area = mass_area(mask_only)
+        p = mass_perimeter(mask_only)
+        circ = circularity(area,p)
+        d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, p)
+        cross0 = cross_zero(d, mu_NRL)
         rmax, rmin = axis(mask_only, center_x, center_y)
-        vm, vs = var_ratio(d, d_mean)
-        E=Radial_lenght_entropy(d_norm)
+        vm, vs = var_ratio(d, mu_NRL)
+        E = Radial_lenght_entropy(d_norm)
         conv = convexity(mass, area)
         im, istd = mass_intensity(mass)
-        kurt = kurtosis(mass)
-        sk = skew(mass)
-        f.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(area, p, circ ,d_mean, std, cross0))
-        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \n'.format(rmax, rmin, vm, vs, E, conv, im, istd))
+        intensity = np.reshape(mass, -1)
+        kurt = kurtosis(intensity)
+        sk = skew(intensity)
+        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
+        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
     f.close()
