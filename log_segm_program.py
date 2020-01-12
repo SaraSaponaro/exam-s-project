@@ -22,7 +22,7 @@ This function pre-process the image.
 '''
 def process_img(image, smooth_factor, scale_factor):
 
-    k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
+    k = np.ones((smooth_factor,smooth_factor))/smoot,_factor**2
     im_conv = convolve2d(image, k )
     image_normalized = rescale(im_conv, 1/scale_factor)#/np.max(im_conv)
     im_log = 255*np.log10(image+1)
@@ -43,8 +43,10 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
         x_center = x1+int((x2-x1)/2)
         y_center = y1+int((y2-y1)/2)
     else:
-        x_center = x_max[0]
-        y_center = y_max[0]
+        #x_center = x_max[0]
+        #y_center = y_max[0]
+        x_center = x_max
+        y_center = y_max
     center = [x_center, y_center]
     return center
 
@@ -214,5 +216,8 @@ if __name__ == '__main__':
     args=parser.parse_args()
     #segmentation(args.input)
     segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample')
+
+
+    
     
     

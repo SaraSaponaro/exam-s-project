@@ -8,6 +8,9 @@ from skimage import measure
 from define_border import distanza
 from scipy.stats import  kurtosis, skew
 from scipy.spatial import ConvexHull
+from log_segm_program import find_center
+
+
 
 
 
@@ -135,8 +138,10 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    #files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    #masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
     files.sort()
     masks.sort()
     nametxt = 'feature_ref.txt'
@@ -152,16 +157,50 @@ if __name__ == '__main__':
         mask_only = imageio.imread(item)
         img = imageio.imread(files[index])
         mass = img*mask_only
-        center=np.where(mass==np.max(mass))
-        center_x=center[1][0]
-        center_y=center[0][0]
         
+        """
+        provo nuovo metodo per trovare il centro
+        """
+        
+        a=np.where(mass!=0)
+        center_intensity=np.where(mass==np.max(mass))
+        
+        x1=np.min(a[1])
+        y1=np.min(a[0])
+        x2=np.max(a[1])
+        y2=np.max(a[0])
+        xmax=center_intensity[1]
+        ymax=center_intensity[0]
+        
+        print('------------------------',index,'-----------------------------')
+        print('len(xmax) = ', len(xmax))
+        
+        if (len(xmax) == 1):
+            print('l = 1')
+            center = find_center(xmax, ymax, y1, x1, y2, x2)
+        else:
+            print('l = boh')
+            print('xmax',xmax)
+            print('ymax',ymax)
+            print(y1, x1, y2, x2)
+            center = find_center(xmax[0], ymax[0], y1, x1, y2, x2)
+            
+        
+        
+
+        
+        #center = find_center(xmax, ymax, y1, x1, y2, x2)
+        center_x=center[0]
+        center_y=center[1]
+        
+    
         area = mass_area(mask_only)
         p = mass_perimeter(mask_only)
         circ = circularity(area,p)
         d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, p)
         cross0 = cross_zero(d, mu_NRL)
         rmax, rmin = axis(mask_only, center_x, center_y)
+        #print(rmax)
         vm, vs = var_ratio(d, mu_NRL)
         E = Radial_lenght_entropy(d_norm)
         conv = convexity(mass, area)
