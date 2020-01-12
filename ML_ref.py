@@ -35,24 +35,26 @@ idea of the distribution of the input variables:
 '''
 
 plt.figure()
-mass.drop('area', axis=1).plot(kind='box', subplots=True, layout=(2,2), sharex=False, sharey=False, figsize=(9,9), title='Box Plot for each input variable')
-plt.savefig('mass_box')
-plt.show()
+mass.drop('classe', axis=1).plot(kind='box', subplots=True,title='Box Plot for each input variable') 
+#plt.savefig('mass_box')
+
 
 plt.figure()
-fruits.drop('classe' ,axis=1).hist(bins=30, figsize=(9,9))
+mass.drop('classe' ,axis=1).hist(bins='auto', figsize=(9,9))
 pl.suptitle("Histogram for each numeric input variable")
-plt.savefig('mass_hist')
-plt.show()
+#plt.savefig('mass_hist')
+
 
 
 #plt.figure()
 feature_names = ['mass', 'width', 'height', 'color_score']
-X = fruits[feature_names]
-y = fruits['fruit_label']
+X = mass[feature_names]
+y = mass['classe']
 cmap = cm.get_cmap('gnuplot')
 scatter = scatter_matrix(X, c = y, marker = 'o', s=40, hist_kwds={'bins':15}, figsize=(9,9), cmap = cmap)
 plt.suptitle('Scatter-matrix for each input variable')
-plt.savefig('mass_scatter_matrix')
-#plt.show()
+#plt.savefig('mass_scatter_matrix')
+
+
+plt.show()
 
