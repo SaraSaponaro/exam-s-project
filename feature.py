@@ -4,6 +4,7 @@ import imageio
 import logging
 import glob
 import os
+import cv2 as cv
 from skimage import measure
 from define_border import distanza
 from scipy.stats import  kurtosis, skew
@@ -75,6 +76,35 @@ def cross_zero(d,d_mean):
    c = np.where(d>=d_mean)
    return len(c[0])
 
+
+from numpy.linalg import eig, inv
+
+def fitEllipse(x,y):
+    x = x[:,np.newaxis]
+    y = y[:,np.newaxis]
+    D =  np.hstack((x*x, x*y, y*y, x, y, np.ones_like(x)))
+    S = np.dot(D.T,D)
+    C = np.zeros([6,6])
+    C[0,2] = C[2,0] = 2; C[1,1] = -1
+    E, V =  eig(np.dot(inv(S), C))
+    n = np.argmax(np.abs(E))
+    a = V[:,n]
+    return a
+
+def ellipse_axis_length( a ):
+    b,c,d,f,g,a = a[1]/2, a[2], a[3]/2, a[4]/2, a[5], a[0]
+    up = 2*(a*f*f+c*d*d+g*b*b-2*b*d*f-a*c*g)
+    down1=(b*b-a*c)*( (c-a)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
+    down2=(b*b-a*c)*( (a-c)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
+    res1=np.sqrt(up/down1)
+    res2=np.sqrt(up/down2)
+    return np.array([res1, res2])
+
+
+
+
+
+
 def axis(mask_only, center_x, center_y):
     """
     Finds minimum and maximum distance connecting two boundary pixels passing trough the center.
@@ -83,28 +113,9 @@ def axis(mask_only, center_x, center_y):
     arr = contours[0].flatten('F')
     y = arr[0:int(len(arr)/2)]
     x = arr[int(len(arr)/2):]
-    l_list = []
     
-    for i in range(0,1):
-        
-        a_value = []
-        for j in range(0, len(x)):
-            
-            if(x[i]!=x[j]) and (y[i]!=y[j]):
-                m,q = linear(x[i], y[i], x[j], y[j])
-                a = center_y-m*center_x-q
-                a_value.append(a)
-            else: 
-                a_value.append(-1)
-        
-            
-                
-        a_value = np.asarray(a_value)
-        minimo = np.min(a_value[a_value>=0])
-        a_index = np.where(a_value == minimo)
-        print(i,'  ',j, '  ', a_index)
-        R=distanza(x[i],y[i],x[a_index[0][0]], y[a_index[0][0]])
-        l_list.append(R)
+    a=fitEllipse(x,y)
+    axes=ellipse_axis_length(a)
 
     """for itemx, itemy in zip(x, y):
         a_value = []
@@ -120,8 +131,9 @@ def axis(mask_only, center_x, center_y):
         a_value = np.asarray(a_value)
         a_index = np.where(a_value == a_value.min())
         R=distanza(itemx,itemy,x[a_index[0][0]], y[a_index[0][0]])
-        l_list.append(R)"""
-    return np.min(l_list), np.max(l_list)
+        l_list.append(R)
+        np.min(l_list), np.max(l_list)"""
+    return np.min(axes), np.max(axes)
 
 def var_ratio(d, d_mean):
     """
