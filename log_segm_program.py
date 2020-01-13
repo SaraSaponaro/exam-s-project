@@ -14,7 +14,7 @@ from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border,distanza
 logging.basicConfig(level=logging.INFO)
-_description='metti la descrisione    yyy  ooo'
+_description='metti la descrisione '
 
 
 '''
@@ -22,7 +22,7 @@ This function pre-process the image.
 '''
 def process_img(image, smooth_factor, scale_factor):
 
-    k = np.ones((smooth_factor,smooth_factor))/smoot,_factor**2
+    k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv = convolve2d(image, k )
     image_normalized = rescale(im_conv, 1/scale_factor)#/np.max(im_conv)
     im_log = 255*np.log10(image+1)
@@ -33,12 +33,11 @@ def process_img(image, smooth_factor, scale_factor):
 
     return im_log_normalized, image_normalized
 
-
 def find_center(x_max, y_max, y1, x1, y2, x2):
-    
+
     '''if the point with maximum intensity is too far away from the ROI center,
     the center is chosen as the center of the rectangle. This is also the starting point of rays.'''
-    
+
     if((np.abs(x_max-(x2-x1)/2)<(4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2)<(4/5)*(y1+(y2-y1)/2))):
         x_center = x1+int((x2-x1)/2)
         y_center = y1+int((y2-y1)/2)
@@ -50,10 +49,11 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
     center = [x_center, y_center]
     return center
 
+
 def segmentation(file_path):
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/*.png')
-    for item in range(61,62):
+    for item in range(22,24):
     #for __,item in enumerate(fileID):
         f = open('center_list.txt', 'a')
         #f.write('#filename\t x_center\t y_center\t y1\t x1\t y2\t x2\n')
@@ -77,14 +77,17 @@ def segmentation(file_path):
         logging.info('Processing image {}'.format(filename))
         im_log_n, image_n= process_img(image, smooth_factor, scale_factor)
         plt.figure()
+        plt.subplot(121)
         plt.title('image {}'.format(filename))
         plt.imshow(image_n)
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf, alpha=0.1)
         plt.colorbar()
         plt.grid()
+        plt.subplot(122)
+        plt.imshow(image_n)
         plt.show()
-        
+
 
         logging.info('Starting the image segmentation.')
         decision  = 'si'
@@ -95,17 +98,18 @@ def segmentation(file_path):
             x1=int(input('Enter x1: '))
             y2=int(input('Enter y2: '))
             x2=int(input('Enter x2: '))
-            ROI = np.zeros(np.shape(image_n))                
+            ROI = np.zeros(np.shape(image_n))
             ROI[y1:y2,x1:x2] = image_n[y1:y2,x1:x2]
             y_max,x_max = np.where(ROI==np.max(ROI))
-    
+
             if (len(x_max) == 1):
                 center = find_center(x_max, y_max, y1, x1, y2, x2)
             else:
                 center = find_center(x_max[0], y_max[0], y1, x1, y2, x2)
-                
+
             logging.info('Showing ROI and center.' )
             plt.figure()
+
             plt.title('ROI')
             plt.imshow(image_n)
             plt.imshow(ROI, alpha=0.3)
@@ -116,13 +120,14 @@ def segmentation(file_path):
             decision=input('Answer yes or no: ')
 
         f.write('{} \t {} \t {}\t {}\t {}\t {}\t {}\n'.format(filename, center[0], center[1], y1, x1, y2, x2))
-        
+
+
         logging.info('First step: finding the border using Yen threshold.')
         image_n=image_n/np.max(ROI)
         image_yen = np.zeros(np.shape(image_n))
         print('image_n = ',np.mean(image_n))
         print('ROI =     ',np.mean(ROI/(np.max(ROI))))
-        val = threshold_yen(image_n) #- threshold_otsu(image_n)
+        val = threshold_yen(image_n)   #-threshold_otsu(image_n)
         image_yen[image_n >= val] = 1
         image_yen[image_n < val] = 0
         print('val =     ',val)
@@ -133,7 +138,7 @@ def segmentation(file_path):
             plt.imshow(image_yen*ROI)
             plt.plot(center[0], center[1], 'r.')
             plt.show()
-        
+
         logging.info('Second step: refining border using Otsu double threshold')
         image_otsu = np.zeros((y2-y1,x2-x1))
         matrix = np.zeros(np.shape(image_n))
@@ -144,7 +149,7 @@ def segmentation(file_path):
         image_otsu[image_otsu>val2] = 0
         image_otsu[image_otsu<val1] = 0
         matrix[y1:y2,x1:x2] = image_otsu
-        
+
         fill = np.zeros(np.shape(image_n))
         contours = measure.find_contours(matrix, 0)
         arr = contours[0].flatten('F').astype('int')
@@ -159,20 +164,19 @@ def segmentation(file_path):
             plt.imshow(fill)
             plt.plot(center[0], center[1], 'r.')
             plt.show()
-        
+
         logging.info('Refining segmentation results.')
         R=int(distanza(x1,y1,x2,y2)/2)
         roughborder=np.zeros(np.shape(im_log_n))
-        
+
         for _ in range(0,len(x)):
-            print(len(x)-_)
             center_raff = [x[_], y[_]]
             Ray_masks_raff = draw_radial_lines(image_yen*ROI,center_raff,int(R/R_scale),NL)
             roughborder_raff= define_border(image_yen*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder+=roughborder_raff
-        
+
         fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
-        
+
         if args.show != None:
             plt.figure()
             plt.title('Final mask of segmented mass.')
@@ -189,7 +193,7 @@ def segmentation(file_path):
         plt.figure()
         plt.title('confronto.')
         plt.subplot(1,2,1)
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(fill_raff, alpha=0.7)
         plt.subplot(1,2,2)
@@ -203,21 +207,14 @@ def segmentation(file_path):
     #return mask_out, fill_raff
 
 
-
-
 if __name__ == '__main__':
 
     #logging.info('Luigi -> /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample/*.png')
     #logging.info('Sara -> /Users/sarasaponaro/Desktop/exam_cmpda/large_sample/*.png')
-    
+
     parser= argparse.ArgumentParser(description=_description)
     parser.add_argument('-i','--input', help='path to images folder')
     parser.add_argument('-s','--show', help='Do you want to show the images of process?')
     args=parser.parse_args()
     #segmentation(args.input)
-    segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample')
-
-
-    
-    
-    
+    segmentation('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample')
