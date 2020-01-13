@@ -84,13 +84,34 @@ def axis(mask_only, center_x, center_y):
     y = arr[0:int(len(arr)/2)]
     x = arr[int(len(arr)/2):]
     l_list = []
+    
+    for i in range(0,1):
+        
+        a_value = []
+        for j in range(0, len(x)):
+            
+            if(x[i]!=x[j]) and (y[i]!=y[j]):
+                m,q = linear(x[i], y[i], x[j], y[j])
+                a = center_y-m*center_x-q
+                a_value.append(a)
+            else: 
+                a_value.append(-1)
+        
+            
+                
+        a_value = np.asarray(a_value)
+        minimo = np.min(a_value[a_value>=0])
+        a_index = np.where(a_value == minimo)
+        print(i,'  ',j, '  ', a_index)
+        R=distanza(x[i],y[i],x[a_index[0][0]], y[a_index[0][0]])
+        l_list.append(R)
 
-    for itemx, itemy in zip(x, y):
+    """for itemx, itemy in zip(x, y):
         a_value = []
 
         for item_x, item_y in zip(x, y):
 
-            if(itemx != item_x):
+            if(itemx != item_x and itemy != item_y):
 
                 m,q = linear(itemx,itemy,item_x,item_y)
                 a = center_y-m*center_x-q
@@ -99,7 +120,7 @@ def axis(mask_only, center_x, center_y):
         a_value = np.asarray(a_value)
         a_index = np.where(a_value == a_value.min())
         R=distanza(itemx,itemy,x[a_index[0][0]], y[a_index[0][0]])
-        l_list.append(R)
+        l_list.append(R)"""
     return np.min(l_list), np.max(l_list)
 
 def var_ratio(d, d_mean):
@@ -134,10 +155,10 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
-    #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+    #files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    #masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
     files.sort()
     masks.sort()
     nametxt = 'feature_ref.txt'
@@ -167,14 +188,15 @@ if __name__ == '__main__':
         x2=np.max(a[1])
         y2=np.max(a[0])
         
-        if (len(center_intensity[1]) == 1):
+        """if (len(center_intensity[1]) == 1):
             center = find_center(center_intensity[1], center_intensity[0], y1, x1, y2, x2)
         else:
             center = find_center(center_intensity[1][0],center_intensity[0][0], y1, x1, y2, x2)
 
         center_x=center[0]
-        center_y=center[1]
-
+        center_y=center[1]"""
+        center_x = x1+int((x2-x1)/2)
+        center_y = y1+int((y2-y1)/2)
 
         area = mass_area(mask_only)
         p = mass_perimeter(mask_only)
