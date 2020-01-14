@@ -4,12 +4,13 @@ import imageio
 import logging
 import glob
 import os
-import cv2 as cv
 from skimage import measure
 from define_border import distanza
 from scipy.stats import  kurtosis, skew
-from scipy.spatial import ConvexHull
-from log_segm_program import find_center
+from skimage.morphology import convex_hull_image
+from skimage.measure import EllipseModel
+
+
 
 def linear(x1,y1,x2,y2):
     """
@@ -60,7 +61,6 @@ def Radial_lenght_entropy(d_norm):
     Find a probabilistic measure computed from the histogram of the normalized radial lenght.
     """
     n, bins, _ = plt.hist(d_norm, 5, density=1)
-
     E=0
     for i in range(0, 5):
         mask1 = d_norm < bins[i+1]
@@ -77,35 +77,7 @@ def cross_zero(d,d_mean):
    return len(c[0])
 
 
-from numpy.linalg import eig, inv
-
-def fitEllipse(x,y):
-    x = x[:,np.newaxis]
-    y = y[:,np.newaxis]
-    D =  np.hstack((x*x, x*y, y*y, x, y, np.ones_like(x)))
-    S = np.dot(D.T,D)
-    C = np.zeros([6,6])
-    C[0,2] = C[2,0] = 2; C[1,1] = -1
-    E, V =  eig(np.dot(inv(S), C))
-    n = np.argmax(np.abs(E))
-    a = V[:,n]
-    return a
-
-def ellipse_axis_length( a ):
-    b,c,d,f,g,a = a[1]/2, a[2], a[3]/2, a[4]/2, a[5], a[0]
-    up = 2*(a*f*f+c*d*d+g*b*b-2*b*d*f-a*c*g)
-    down1=(b*b-a*c)*( (c-a)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
-    down2=(b*b-a*c)*( (a-c)*np.sqrt(1+4*b*b/((a-c)*(a-c)))-(c+a))
-    res1=np.sqrt(up/down1)
-    res2=np.sqrt(up/down2)
-    return np.array([res1, res2])
-
-
-
-
-
-
-def axis(mask_only, center_x, center_y):
+def axis(mask_only):
     """
     Finds minimum and maximum distance connecting two boundary pixels passing trough the center.
     """
@@ -113,53 +85,36 @@ def axis(mask_only, center_x, center_y):
     arr = contours[0].flatten('F')
     y = arr[0:int(len(arr)/2)]
     x = arr[int(len(arr)/2):]
-    
-    a=fitEllipse(x,y)
-    axes=ellipse_axis_length(a)
-
-    """for itemx, itemy in zip(x, y):
-        a_value = []
-
-        for item_x, item_y in zip(x, y):
-
-            if(itemx != item_x and itemy != item_y):
-
-                m,q = linear(itemx,itemy,item_x,item_y)
-                a = center_y-m*center_x-q
-                a_value.append(np.abs(a))
-
-        a_value = np.asarray(a_value)
-        a_index = np.where(a_value == a_value.min())
-        R=distanza(itemx,itemy,x[a_index[0][0]], y[a_index[0][0]])
-        l_list.append(R)
-        np.min(l_list), np.max(l_list)"""
+    z = np.hstack((x,y)).reshape(2,-1).T
+    ell = EllipseModel()
+    ell.estimate(z)
+    xc, yc, a, b, theta = ell.params
+    axes = [a, b]
     return np.min(axes), np.max(axes)
 
-def var_ratio(d, d_mean):
+def var_ratio(d):
     """
     Finds the maximum variation of distance from the mean. It computes the mean and the standard deviation of the dominant variations.
     """
-    vm = np.max(d-d_mean)/2
-    mean = np.mean(np.abs(d-d_mean)>=vm)
-    std = np.std(np.abs(d-d_mean)>=vm)
+    vm = np.max(d-(np.mean(d)))/2
+    mean = np.mean(np.abs(d-(np.mean(d)))>=vm)
+    std = np.std(np.abs(d-(np.mean(d))>=vm))
     return mean, std
 
 def convexity(mass,area):
     """
     Finds the smallest convex containing the mass. It returns the ratio between the mass area and the area of convex hull.
     """
-    c = np.where(mass>0)
-    y = c[0]
-    x = c[1]
-    coordinates = np.hstack((x,y))
-    coordinates = coordinates.reshape(2, -1).T
-    hull = ConvexHull(coordinates)
-    return area/hull.volume
-
+    hull = convex_hull_image(mass)
+    a = np.where(hull != 0)
+    area_hull = np.shape(a)[1]
+    return area/area_hull
+    
 def mass_intensity(mass):
     """
     Finds the mean and the standard deviation of the grey level intensity value of image.
     """
+    mass = mass/np.max(mass)
     mean = np.mean(mass)
     std = np.std(mass)
     return mean,std
@@ -167,10 +122,10 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    #files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    #masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
-    files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
     files.sort()
     masks.sort()
     nametxt = 'feature_ref.txt'
@@ -200,13 +155,6 @@ if __name__ == '__main__':
         x2=np.max(a[1])
         y2=np.max(a[0])
         
-        """if (len(center_intensity[1]) == 1):
-            center = find_center(center_intensity[1], center_intensity[0], y1, x1, y2, x2)
-        else:
-            center = find_center(center_intensity[1][0],center_intensity[0][0], y1, x1, y2, x2)
-
-        center_x=center[0]
-        center_y=center[1]"""
         center_x = x1+int((x2-x1)/2)
         center_y = y1+int((y2-y1)/2)
 
@@ -215,15 +163,13 @@ if __name__ == '__main__':
         circ = circularity(area,p)
         d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, p)
         cross0 = cross_zero(d, mu_NRL)
-        rmin,rmax  = axis(mask_only, center_x, center_y)
-        print(index,'----------- min e max',rmin,rmax)
-        #print(rmax)
-        vm, vs = var_ratio(d, mu_NRL)
+        rmin,rmax  = axis(mask_only)
+        vm, vs = var_ratio(d)
         E = Radial_lenght_entropy(d_norm)
         conv = convexity(mass, area)
         im, istd = mass_intensity(mass)
-        intensity = np.reshape(mass, -1)
-        kurt = kurtosis(intensity)
+        intensity = np.reshape(mass[mass!=0], -1)
+        kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
         if classe == '1':
 
