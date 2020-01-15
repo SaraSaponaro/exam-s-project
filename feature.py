@@ -66,14 +66,14 @@ def Radial_lenght_entropy(d_norm):
         mask1 = d_norm < bins[i+1]
         mask2 = d_norm > bins[i]
         p = len(d_norm[np.logical_and(mask1,mask2)])/len(d_norm)
-        E += - p*np.log(p)
+        E += - p*np.log(p + 2.2e-16)
     return E
 
 def cross_zero(d,d_mean):
    """
    Counts the number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
    """
-   c = np.where(d>=d_mean)
+   c = np.where(d>=np.mean(d))
    return len(c[0])
 
 
