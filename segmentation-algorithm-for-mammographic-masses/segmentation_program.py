@@ -14,14 +14,15 @@ from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border,distanza
 logging.basicConfig(level=logging.INFO)
-_description='metti la descrisione '
+
+_description='finding perfect segmentation'
 
 
-'''
-This function pre-process the image.
-'''
+
 def process_img(image, smooth_factor, scale_factor):
-
+    """
+    This function pre-process the image.
+    """
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv = convolve2d(image, k )
     image_normalized = rescale(im_conv, 1/scale_factor)#/np.max(im_conv)
@@ -30,13 +31,14 @@ def process_img(image, smooth_factor, scale_factor):
     im_median = median(im_log, np.ones((5,5)))
     im_res = resize(im_median, (126,126))
     im_log_normalized = im_res#/np.max(im_res)
-
     return im_log_normalized, image_normalized
 
 def find_center(x_max, y_max, y1, x1, y2, x2):
 
-    '''if the point with maximum intensity is too far away from the ROI center,
-    the center is chosen as the center of the rectangle. This is also the starting point of rays.'''
+    """
+    If the point with maximum intensity is too far away from the ROI center,
+    the center is choosen as the center of the rectangle. This is also the starting point of rays.
+    """
 
     if((np.abs(x_max-(x2-x1)/2)<(4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2)<(4/5)*(y1+(y2-y1)/2))):
         x_center = x1+int((x2-x1)/2)
@@ -51,6 +53,9 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
 
 
 def segmentation(file_path):
+    """
+    This function performs the real segmentation of the input image.
+    """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/*.png')
     for item in range(22,24):

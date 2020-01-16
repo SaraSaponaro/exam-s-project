@@ -1,17 +1,17 @@
 import numpy as np
 import math
 
-'''
+"""
 Function that computes a trasformation from polar to cartesian coordinates.
-'''
+"""
 def pol2cart(rho, theta):
     x = rho * np.cos(theta)
     y = rho * np.sin(theta)
     return(x, y)
 
-'''
+"""
 Creates a binary mask of size ROI, where NL radial lines of lenght R are depicted starting from the center.
-'''
+"""
 
 def draw_radial_lines(ROI,center,R,NL):
 

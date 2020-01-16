@@ -9,7 +9,7 @@ from define_border import distanza
 from scipy.stats import  kurtosis, skew
 from skimage.morphology import convex_hull_image
 from skimage.measure import EllipseModel
-
+logging.basicConfig(level=logging.INFO)
 
 
 def linear(x1,y1,x2,y2):
@@ -60,7 +60,7 @@ def Radial_lenght_entropy(d_norm):
     """
     Find a probabilistic measure computed from the histogram of the normalized radial lenght.
     """
-    n, bins, _ = plt.hist(d_norm, 5, density=1)
+    __, bins, _ = plt.hist(d_norm, 5, density=1)
     E=0
     for i in range(0, 5):
         mask1 = d_norm < bins[i+1]
@@ -76,7 +76,6 @@ def cross_zero(d,d_mean):
    c = np.where(d>=np.mean(d))
    return len(c[0])
 
-
 def axis(mask_only):
     """
     Finds minimum and maximum distance connecting two boundary pixels passing trough the center.
@@ -88,7 +87,7 @@ def axis(mask_only):
     z = np.hstack((x,y)).reshape(2,-1).T
     ell = EllipseModel()
     ell.estimate(z)
-    xc, yc, a, b, theta = ell.params
+    _, __, a, b, ___ = ell.params
     axes = [a, b]
     return np.min(axes), np.max(axes)
 
@@ -122,19 +121,26 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
-    #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+    #logging.info('Luigi -> files  =  /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    #logging.info('Luigi -> masks  =  /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+    #logging.info('Sara  -> files  =  /Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    #logging.info('Sara  -> masks  =  /Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    #file_path=(input('Enter files = : '))
+    #mask_path=(input('Enter masks = : '))
+    #files=glob.glob('file_path')
+    #masks=glob.glob('mask_path')
+
+    #files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    #masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+    
     files.sort()
     masks.sort()
-    nametxt = 'feature_ref.txt'
-    nametxt_m = 'feature_m.txt'
-    nametxt_b= 'feature_b.txt'
-    f = open(nametxt, 'w')
-    #fm = open(nametxt_m, 'w')
-    #fb = open(nametxt_b, 'w')
-    fML = open ('feature_ML.txt', 'w')
+    f_ref = open('../txt/feature_reference.txt', 'w')
+    fm = open('../txt/feature_malignant.txt', 'w')
+    fb = open('../txt/feature_benign.txt', 'w')
+    fML = open ('../txt/feature_ML.txt', 'w')
     #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
     #f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
     for index, item in enumerate(masks):
@@ -160,9 +166,9 @@ if __name__ == '__main__':
         center_y = y1+int((y2-y1)/2)
 
         area = mass_area(mask_only)
-        p = mass_perimeter(mask_only)
-        circ = circularity(area,p)
-        d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, p)
+        perimeter = mass_perimeter(mask_only)
+        circ = circularity(area,perimeter)
+        d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, perimeter)
         cross0 = cross_zero(d, mu_NRL)
         rmin,rmax  = axis(mask_only)
         vm, vs = var_ratio(d)
@@ -172,21 +178,22 @@ if __name__ == '__main__':
         intensity = np.reshape(mass[mass!=0], -1)
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
-        '''
+
+        
         if classe == '1':
 
-            fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
+            fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
             fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         elif classe == '2':
 
-            fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
+            fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
             fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        '''
-        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
-        f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+        
+        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
+        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
         fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
-    #fm.close()
-    #fb.close()
+    fm.close()
+    fb.close()
     fML.close()
-    f.close()
+    f_ref.close()
