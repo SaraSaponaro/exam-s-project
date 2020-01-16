@@ -132,8 +132,9 @@ if __name__ == '__main__':
     nametxt_m = 'feature_m.txt'
     nametxt_b= 'feature_b.txt'
     f = open(nametxt, 'w')
-    fm = open(nametxt_m, 'w')
-    fb = open(nametxt_b, 'w')
+    #fm = open(nametxt_m, 'w')
+    #fb = open(nametxt_b, 'w')
+    fML = open ('feature_ML.txt', 'w')
     #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
     #f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
     for index, item in enumerate(masks):
@@ -171,6 +172,7 @@ if __name__ == '__main__':
         intensity = np.reshape(mass[mass!=0], -1)
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
+        '''
         if classe == '1':
 
             fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
@@ -179,8 +181,12 @@ if __name__ == '__main__':
 
             fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
             fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+        '''
         f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, p, circ ,mu_NRL, std_NRL, cross0))
         f.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-    fm.close()
-    fb.close()
+        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
+        fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
+    #fm.close()
+    #fb.close()
+    fML.close()
     f.close()
