@@ -8,7 +8,8 @@ import argparse
 from PIL import Image
 from scipy.signal import convolve2d
 from skimage.transform import  rescale, resize
-from skimage import measure, exposure
+from skimage import measure
+from skimage.morphology import label
 from skimage.exposure import is_low_contrast, histogram, adjust_gamma
 from skimage.filters import  median, threshold_yen , threshold_multiotsu, threshold_otsu, hessian
 from scipy import ndimage
@@ -59,10 +60,8 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/*.png')
-    for item in range(35,36):
-    #for __,item in enumerate(fileID):
+    for item in range(27,28):
         f = open('center_list.txt', 'a')
-        #f.write('#filename\t x_center\t y_center\t y1\t x1\t y2\t x2\n')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
         filename = os.path.basename(filename)
@@ -82,16 +81,13 @@ def segmentation(file_path):
 
         logging.info('Processing image {}'.format(filename))
         im_log_n, image_n= process_img(image, smooth_factor, scale_factor)
+        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.figure()
-        plt.subplot(121)
         plt.title('image {}'.format(filename))
         plt.imshow(image_n)
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf, alpha=0.1)
         plt.colorbar()
         plt.grid()
-        plt.subplot(122)
-        plt.imshow(image_n)
         plt.show()
 
 
@@ -105,14 +101,15 @@ def segmentation(file_path):
             y2=int(input('Enter y2: '))
             x2=int(input('Enter x2: '))
             ROI = np.zeros(np.shape(image_n))
-            ROI[y1:y2,x1:x2] = image_n[y1:y2,x1:x2]
+            img_adapteq=hessian(image_n)
+            ROI[y1:y2,x1:x2] = img_adapteq[y1:y2,x1:x2]
             y_max,x_max = np.where(ROI==np.max(ROI))
-
+            
             if (len(x_max) == 1):
                 center = find_center(x_max, y_max, y1, x1, y2, x2)
             else:
                 center = find_center(x_max[0], y_max[0], y1, x1, y2, x2)
-
+                
             logging.info('Showing ROI and center.' )
             plt.figure()
             plt.title('ROI')
@@ -121,112 +118,56 @@ def segmentation(file_path):
             plt.plot(center[0], center[1], 'r.')
             plt.colorbar()
             plt.show()
-            image_n=image_n/np.max(ROI)
-            image_n[image_n>1]=0
-            a=is_low_contrast(image_n, fraction_threshold=0.3)
-            #non ho ben capito come farlo, dobbiamo vederlo stasera
-            #INSERIRE OPZIONE PER ALTO E BASSO CONTRASTO 
-            #img_adapteq = exposure.equalize_adapthist(image_n, clip_limit=0.09)
-            #adesso provo a mettere un gamma filter
-            #im_adapteq=adjust_gamma(img_adapteq/(np.max(img_adapteq)),10)
-            #img_adapteq=image_n
-            #img_adapteq=hessian(image_n)
-            
-            #prova=ndimage.generic_filter(img_adapteq*ROI, np.std, size_nhood_variance)
         
-            '''plt.figure()
+            plt.figure()
             plt.title('equalize')
-            plt.imshow(img_adapteq)
+            plt.imshow(img_adapteq*ROI)
             #plt.imshow(ROI, alpha=0.3)
             plt.plot(center[0], center[1], 'r.')
             plt.colorbar()
-            plt.show()'''
+            plt.show()
             print('Do you want to change your coordinates?')
             decision=input('Answer yes or no: ')
 
         f.write('{} \t {} \t {}\t {}\t {}\t {}\t {}\n'.format(filename, center[0], center[1], y1, x1, y2, x2))
 
 
-        logging.info('First step: finding the border using Yen threshold.')
+        logging.info('pulisco le schifezze')
+        ROI[ROI<1]=0
+        fill = ndimage.binary_fill_holes(ROI).astype(int)
+        fill, n= label(fill, return_num=True)
+        count=[]
+        for i in range(1, n+1):
+            count.append(np.count_nonzero(fill == i))
+        w=np.where(count==np.max(count))
+        fill[fill!=w[0]+1]=0
         
+        plt.figure()
+        plt.title('ho pulito le schifezze e ho fillato')
+        plt.imshow(fill)
+        plt.show()
         
-        image_yen = np.zeros(np.shape(image_n))
-        print('image_n = ',np.mean(image_n))
-        print('ROI =     ',np.mean(ROI/(np.max(ROI))))
-        val = threshold_yen(image_n)   #- threshold_otsu(image_n)
-        image_yen[image_n >= val] = 1
-        image_yen[image_n < val] = 0
-        print('val =     ',val)
-
-        if args.show != None:
-            plt.figure()
-            plt.title('first step -> Yen threshold')
-            plt.imshow(image_yen*ROI)
-            plt.plot(center[0], center[1], 'r.')
-            plt.show()
-
-        '''logging.info('Second step: refining border using Otsu double threshold')
-        image_otsu = np.zeros((y2-y1,x2-x1))
-        matrix = np.zeros(np.shape(image_n))
-        image_otsu = image_yen[y1:y2,x1:x2]*(ROI[y1:y2,x1:x2]/np.max(ROI))
-        val1, val2 = threshold_multiotsu(image_otsu)
-        print('val1 =    ',val1)
-        print('val2 =    ',val2)
-        image_otsu[image_otsu>val2] = 0
-        image_otsu[image_otsu<val1] = 0
-        matrix[y1:y2,x1:x2] = image_otsu
-
-        fill = np.zeros(np.shape(image_n))
-        contours = measure.find_contours(matrix, 0)
+        logging.info('ltrovo il bordo')
+        contours = measure.find_contours(fill,0,  fully_connected='high')
         arr = contours[0].flatten('F').astype('int')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
-        fill[y,x] = 1
-        fill = ndimage.binary_fill_holes(fill).astype(int)'''
+        plt.figure()
+        plt.imshow(fill)
+        plt.plot(x,y,'.')
+        plt.show()
         
         
-        
-        
-        #provo a togliere multiotsu
-        
-        
-        
-        logging.info('Second step: refining border using Otsu double threshold')
-        image_otsu = np.zeros(np.shape(image_n))
-        matrix = np.zeros(np.shape(image_n))
-        image_otsu = image_yen*(ROI/np.max(ROI))
-        val1, val2 = threshold_multiotsu(image_otsu)
-        print('val1 =    ',val1)
-        print('val2 =    ',val2)
-        image_otsu[image_otsu>val2] = 0
-        image_otsu[image_otsu<val1] = 0
-       
 
-        fill = np.zeros(np.shape(image_n))
-        #contours = measure.find_contours(image_otsu, 0)
-        contours = measure.find_contours(image_yen*ROI, 0)
-        arr = contours[0].flatten('F').astype('int')
-        y = arr[0:(int(len(arr)/2))]
-        x = arr[(int(len(arr)/2)):]
-        fill[y,x] = 1
-        fill = ndimage.binary_fill_holes(fill).astype(int)
-
-        if args.show != None:
-            plt.figure()
-            plt.title('second step -> Otsu double threshold')
-            plt.imshow(fill)
-            plt.plot(center[0], center[1], 'r.')
-            plt.show()
-
-        logging.info('Refining segmentation results.')
-        R=int(distanza(x1,y1,x2,y2)/2)
+        logging.info('uso fill_raff per inciottirla')
+        R=int(distanza(x1,y1,x2,y2))
         roughborder=np.zeros(np.shape(im_log_n))
 
         for _ in range(0,len(x)):
             print(len(x)-_)
             center_raff = [x[_], y[_]]
-            Ray_masks_raff = draw_radial_lines(image_yen*ROI,center_raff,int(R/R_scale),NL)
-            roughborder_raff= define_border(image_yen*ROI, NL, fill ,size_nhood_variance, Ray_masks_raff)
+            Ray_masks_raff = draw_radial_lines(ROI,center_raff,int(R/R_scale),NL)
+            roughborder_raff= define_border(image_n, NL, fill ,size_nhood_variance, Ray_masks_raff)
             roughborder+=roughborder_raff
 
         fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
@@ -235,15 +176,8 @@ def segmentation(file_path):
             plt.figure()
             plt.title('Final mask of segmented mass.')
             plt.imshow(fill_raff)
-            #plt.imshow(img_adapteq)
             plt.show()
 
-            logging.info('Showing result')
-            plt.figure()
-            plt.title('Segmented mass.')
-            plt.imshow(fill_raff*image_n)
-            plt.colorbar()
-            plt.show()
 
         plt.figure()
         plt.title('confronto.')
@@ -256,8 +190,11 @@ def segmentation(file_path):
         plt.show()
         
         plt.figure('la metto sopra')
+        plt.subplot(121)
+        plt.imshow(fill_raff*image_n)
+        plt.subplot(122)
         plt.imshow(image_n)
-        plt.imshow(fill_raff, alpha=0.3)
+        plt.show()
 
         fill_raff = fill_raff.astype(np.int8)
         im1 = Image.fromarray(fill_raff, mode='L')
