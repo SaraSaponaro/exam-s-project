@@ -10,6 +10,7 @@ from scipy.signal import convolve2d
 from skimage.transform import  rescale, resize
 from skimage import measure
 from skimage.filters import  median, threshold_yen , threshold_multiotsu, threshold_otsu
+from skimage import exposure
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border,distanza
@@ -58,7 +59,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/*.png')
-    for item in range(22,24):
+    for item in range(29,30):
     #for __,item in enumerate(fileID):
         f = open('center_list.txt', 'a')
         #f.write('#filename\t x_center\t y_center\t y1\t x1\t y2\t x2\n')
@@ -114,9 +115,21 @@ def segmentation(file_path):
 
             logging.info('Showing ROI and center.' )
             plt.figure()
-
             plt.title('ROI')
             plt.imshow(image_n)
+            plt.imshow(ROI, alpha=0.3)
+            plt.plot(center[0], center[1], 'r.')
+            plt.colorbar()
+            plt.show()
+            image_n=image_n/np.max(ROI)
+            image_n[image_n>1]=0
+            #INSERIRE OPZIONE PER ALTO E BASSO CONTRASTO 
+            img_adapteq = exposure.equalize_adapthist(image_n, clip_limit=0.09)
+            #prova=ndimage.generic_filter(img_adapteq*ROI, np.std, size_nhood_variance)
+        
+            plt.figure()
+            plt.title('equalize')
+            plt.imshow(img_adapteq)
             plt.imshow(ROI, alpha=0.3)
             plt.plot(center[0], center[1], 'r.')
             plt.colorbar()
@@ -128,11 +141,12 @@ def segmentation(file_path):
 
 
         logging.info('First step: finding the border using Yen threshold.')
-        image_n=image_n/np.max(ROI)
+        
+        
         image_yen = np.zeros(np.shape(image_n))
         print('image_n = ',np.mean(image_n))
         print('ROI =     ',np.mean(ROI/(np.max(ROI))))
-        val = threshold_yen(image_n)   #-threshold_otsu(image_n)
+        val = threshold_yen(img_adapteq)   #- threshold_otsu(image_n)
         image_yen[image_n >= val] = 1
         image_yen[image_n < val] = 0
         print('val =     ',val)
@@ -144,7 +158,7 @@ def segmentation(file_path):
             plt.plot(center[0], center[1], 'r.')
             plt.show()
 
-        logging.info('Second step: refining border using Otsu double threshold')
+        '''logging.info('Second step: refining border using Otsu double threshold')
         image_otsu = np.zeros((y2-y1,x2-x1))
         matrix = np.zeros(np.shape(image_n))
         image_otsu = image_yen[y1:y2,x1:x2]*(ROI[y1:y2,x1:x2]/np.max(ROI))
@@ -157,6 +171,25 @@ def segmentation(file_path):
 
         fill = np.zeros(np.shape(image_n))
         contours = measure.find_contours(matrix, 0)
+        arr = contours[0].flatten('F').astype('int')
+        y = arr[0:(int(len(arr)/2))]
+        x = arr[(int(len(arr)/2)):]
+        fill[y,x] = 1
+        fill = ndimage.binary_fill_holes(fill).astype(int)'''
+        
+        logging.info('Second step: refining border using Otsu double threshold')
+        image_otsu = np.zeros(np.shape(image_n))
+        matrix = np.zeros(np.shape(image_n))
+        image_otsu = image_yen*(ROI/np.max(ROI))
+        val1, val2 = threshold_multiotsu(image_otsu)
+        print('val1 =    ',val1)
+        print('val2 =    ',val2)
+        image_otsu[image_otsu>val2] = 0
+        image_otsu[image_otsu<val1] = 0
+       
+
+        fill = np.zeros(np.shape(image_n))
+        contours = measure.find_contours(image_otsu, 0)
         arr = contours[0].flatten('F').astype('int')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
