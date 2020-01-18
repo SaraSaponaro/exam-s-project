@@ -19,8 +19,6 @@ logging.basicConfig(level=logging.INFO)
 
 _description='finding perfect segmentation'
 
-
-
 def process_img(image, smooth_factor, scale_factor):
     """
     This function pre-process the image.
@@ -59,8 +57,8 @@ def segmentation(file_path):
     This function performs the real segmentation of the input image.
     """
     logging.info('Reading files')
-    fileID = glob.glob(file_path+'/*.png')
-    for item in range(27,28):
+    fileID = glob.glob(file_path+'/large_sample/*.png')
+    for item in range(16,17):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -81,7 +79,7 @@ def segmentation(file_path):
 
         logging.info('Processing image {}'.format(filename))
         im_log_n, image_n= process_img(image, smooth_factor, scale_factor)
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread(file_path+'/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.figure()
         plt.title('image {}'.format(filename))
         plt.imshow(image_n)
@@ -104,12 +102,12 @@ def segmentation(file_path):
             img_adapteq=hessian(image_n)
             ROI[y1:y2,x1:x2] = img_adapteq[y1:y2,x1:x2]
             y_max,x_max = np.where(ROI==np.max(ROI))
-            
+
             if (len(x_max) == 1):
                 center = find_center(x_max, y_max, y1, x1, y2, x2)
             else:
                 center = find_center(x_max[0], y_max[0], y1, x1, y2, x2)
-                
+
             logging.info('Showing ROI and center.' )
             plt.figure()
             plt.title('ROI')
@@ -118,14 +116,15 @@ def segmentation(file_path):
             plt.plot(center[0], center[1], 'r.')
             plt.colorbar()
             plt.show()
-        
-            plt.figure()
-            plt.title('equalize')
-            plt.imshow(img_adapteq*ROI)
-            #plt.imshow(ROI, alpha=0.3)
-            plt.plot(center[0], center[1], 'r.')
-            plt.colorbar()
-            plt.show()
+
+            if args.show != None:
+                plt.figure()
+                plt.title('equalize')
+                plt.imshow(img_adapteq*ROI)
+                #plt.imshow(ROI, alpha=0.3)
+                plt.plot(center[0], center[1], 'r.')
+                plt.colorbar()
+                plt.show()
             print('Do you want to change your coordinates?')
             decision=input('Answer yes or no: ')
 
@@ -141,23 +140,17 @@ def segmentation(file_path):
             count.append(np.count_nonzero(fill == i))
         w=np.where(count==np.max(count))
         fill[fill!=w[0]+1]=0
-        
-        plt.figure()
-        plt.title('ho pulito le schifezze e ho fillato')
-        plt.imshow(fill)
-        plt.show()
-        
+        if args.show != None:
+            plt.figure()
+            plt.title('cleaning image.')
+            plt.imshow(fill)
+            plt.show()
+
         logging.info('ltrovo il bordo')
         contours = measure.find_contours(fill,0,  fully_connected='high')
         arr = contours[0].flatten('F').astype('int')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
-        plt.figure()
-        plt.imshow(fill)
-        plt.plot(x,y,'.')
-        plt.show()
-        
-        
 
         logging.info('uso fill_raff per inciottirla')
         R=int(distanza(x1,y1,x2,y2))
@@ -182,18 +175,11 @@ def segmentation(file_path):
         plt.figure()
         plt.title('confronto.')
         plt.subplot(1,2,1)
-        conf=imageio.imread('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread(file_path+'large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(fill_raff, alpha=0.7)
         plt.subplot(1,2,2)
         plt.imshow(fill_raff)
-        plt.show()
-        
-        plt.figure('la metto sopra')
-        plt.subplot(121)
-        plt.imshow(fill_raff*image_n)
-        plt.subplot(122)
-        plt.imshow(image_n)
         plt.show()
 
         fill_raff = fill_raff.astype(np.int8)
@@ -213,4 +199,4 @@ if __name__ == '__main__':
     parser.add_argument('-s','--show', help='Do you want to show the images of process?')
     args=parser.parse_args()
     #segmentation(args.input)
-    segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample')
+    segmentation('/Users/sarasaponaro/Desktop/exam_cmpda/')
