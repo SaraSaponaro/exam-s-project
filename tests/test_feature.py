@@ -6,7 +6,7 @@ import pylab as plt
 import unittest
 from skimage.draw import circle_perimeter
 from scipy import ndimage
-from feature import mass_area
+from segmentation_program.feature import mass_area
 
 
 
@@ -17,12 +17,9 @@ circle=ndimage.binary_fill_holes(test).astype(int)
 
 
 class Test_feature(unittest.TestCase):
-    def mass_area(self):
-        self.assertAlmostEqual(mass_area(circle),np.pi*100)
-        
-        
+    def area(self):
+        self.assertAlmostEqual(mass_area(circle),(np.pi*100))
 
 
-
-
-
+if __name__ == '__main__':
+    unittest.main()

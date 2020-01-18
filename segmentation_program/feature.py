@@ -5,7 +5,7 @@ import logging
 import glob
 import os
 from skimage import measure
-from define_border import distanza
+from segmentation_program.define_border import distanza
 from scipy.stats import  kurtosis, skew
 from skimage.morphology import convex_hull_image
 from skimage.measure import EllipseModel
@@ -108,7 +108,7 @@ def convexity(mass,area):
     a = np.where(hull != 0)
     area_hull = np.shape(a)[1]
     return area/area_hull
-    
+
 def mass_intensity(mass):
     """
     Finds the mean and the standard deviation of the grey level intensity value of image.
@@ -130,11 +130,11 @@ if __name__ == '__main__':
     #files=glob.glob('file_path')
     #masks=glob.glob('mask_path')
 
-    #files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    #masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
-    files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
-    
+    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
+    #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
+
     files.sort()
     masks.sort()
     f_ref = open('../txt/feature_reference.txt', 'w')
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         y1=np.min(a[0])
         x2=np.max(a[1])
         y2=np.max(a[0])
-        
+
         center_x = x1+int((x2-x1)/2)
         center_y = y1+int((y2-y1)/2)
 
@@ -179,7 +179,7 @@ if __name__ == '__main__':
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
 
-        
+
         if classe == '1':
 
             fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
             fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
             fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        
+
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))

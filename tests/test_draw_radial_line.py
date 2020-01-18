@@ -7,8 +7,7 @@ from scipy.signal import convolve2d
 from skimage.transform import  rescale, resize
 from PIL import Image
 from scipy import ndimage
-from draw_radial_line import draw_radial_lines
-from define_border import define_border
+from segmentation_program.draw_radial_line import draw_radial_lines
 import unittest
 
 
@@ -34,3 +33,7 @@ class Test_draw_radial_lines(unittest.TestCase):
     def test_raggi(self):
         'testo se gli do unimmagine input semplice che mi disegni correttamente le righe'
         self.assertAlmostEqual(draw_radial_lines(test,[63,63],63,5).all(),lista_test.all())
+
+
+if __name__ == '__main__':
+    unittest.main()
