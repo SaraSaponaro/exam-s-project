@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.ndimage.filters import generic_filter
-from skimage.filters import threshold_otsu
 from skimage.draw import line_nd
 
 '''Function that returns the euclidean distance.'''

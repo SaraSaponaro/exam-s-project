@@ -89,7 +89,7 @@ def axis(mask_only):
     ell.estimate(z)
     _, __, a, b, ___ = ell.params
     axes = [a, b]
-    return np.min(axes), np.max(axes)
+    return 2*np.min(axes), 2*np.max(axes)
 
 def var_ratio(d):
     """

@@ -1,14 +1,7 @@
-import pylab as plt
 import numpy as np
-import imageio
-import os
-import logging
-from scipy.signal import convolve2d
-from skimage.transform import  rescale, resize
-from PIL import Image
-from scipy import ndimage
-from segmentation_program.draw_radial_line import draw_radial_lines
 import unittest
+from segmentation_program.draw_radial_line import draw_radial_lines
+
 
 
 test=np.zeros((126,126))
@@ -28,6 +21,7 @@ test_e[63,63:]=1
 
 lista_test=[test_e, test_s, test_o, test_n, test_e]
 lista_test=np.asarray(lista_test)
+
 
 class Test_draw_radial_lines(unittest.TestCase):
     def test_raggi(self):
