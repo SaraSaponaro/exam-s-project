@@ -58,7 +58,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(16,17):
+    for item in range(26,47):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
