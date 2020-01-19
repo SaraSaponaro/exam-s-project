@@ -58,7 +58,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(26,47):
+    for item in range(76,77):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -81,10 +81,13 @@ def segmentation(file_path):
         im_log_n, image_n= process_img(image, smooth_factor, scale_factor)
         conf=imageio.imread(file_path+'/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.figure()
+        plt.subplot(121)
         plt.title('image {}'.format(filename))
         plt.imshow(image_n)
         plt.imshow(conf, alpha=0.1)
-        plt.colorbar()
+        plt.grid()
+        plt.subplot(122)
+        plt.imshow(image_n)
         plt.grid()
         plt.show()
 
@@ -153,7 +156,7 @@ def segmentation(file_path):
         x = arr[(int(len(arr)/2)):]
 
         logging.info('uso fill_raff per inciottirla')
-        R=int(distanza(x1,y1,x2,y2))
+        R=int(distanza(x1,y1,x2,y2)/2)
         roughborder=np.zeros(np.shape(im_log_n))
 
         for _ in range(0,len(x)):
