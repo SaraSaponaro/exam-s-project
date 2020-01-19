@@ -2,6 +2,6 @@ numpy
 pylab 
 scipy
 matplotlib
-skimage
+scikit-image
 math
 imageio
