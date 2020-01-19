@@ -1,0 +1,7 @@
+numpy
+pylab 
+scipy
+matplotlib
+skimage
+math
+imageio
