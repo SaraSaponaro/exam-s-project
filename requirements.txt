@@ -3,5 +3,4 @@ pylab
 scipy
 matplotlib
 scikit-image
-math
 imageio
