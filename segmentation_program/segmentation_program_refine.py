@@ -7,11 +7,10 @@ import glob
 import argparse
 from PIL import Image
 from scipy.signal import convolve2d
-from skimage.transform import  rescale, resize
+from skimage.transform import  rescale
 from skimage import measure
 from skimage.morphology import label
-from skimage.exposure import is_low_contrast, histogram, adjust_gamma
-from skimage.filters import  median, threshold_yen , threshold_multiotsu, threshold_otsu, hessian
+from skimage.filters import  median, hessian
 from scipy import ndimage
 from draw_radial_line import draw_radial_lines
 from define_border import define_border,distanza
@@ -25,13 +24,8 @@ def process_img(image, smooth_factor, scale_factor):
     """
     k = np.ones((smooth_factor,smooth_factor))/smooth_factor**2
     im_conv = convolve2d(image, k )
-    image_normalized = rescale(im_conv, 1/scale_factor)#/np.max(im_conv)
-    im_log = 255*np.log10(image+1)
-    im_log = im_log.astype('uint8')
-    im_median = median(im_log, np.ones((5,5)))
-    im_res = resize(im_median, (126,126))
-    im_log_normalized = im_res#/np.max(im_res)
-    return im_log_normalized, image_normalized
+    image_normalized = rescale(im_conv, 1/scale_factor)
+    return image_normalized
 
 def find_center(x_max, y_max, y1, x1, y2, x2):
 
@@ -58,7 +52,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(76,77):
+    for item in range(116, 126):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -78,7 +72,7 @@ def segmentation(file_path):
         R_scale = 5
 
         logging.info('Processing image {}'.format(filename))
-        im_log_n, image_n= process_img(image, smooth_factor, scale_factor)
+        image_n= process_img(image, smooth_factor, scale_factor)
         conf=imageio.imread(file_path+'/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.figure()
         plt.subplot(121)
@@ -101,6 +95,7 @@ def segmentation(file_path):
             x1=int(input('Enter x1: '))
             y2=int(input('Enter y2: '))
             x2=int(input('Enter x2: '))
+
             ROI = np.zeros(np.shape(image_n))
             img_adapteq=hessian(image_n)
             ROI[y1:y2,x1:x2] = img_adapteq[y1:y2,x1:x2]
@@ -134,30 +129,32 @@ def segmentation(file_path):
         f.write('{} \t {} \t {}\t {}\t {}\t {}\t {}\n'.format(filename, center[0], center[1], y1, x1, y2, x2))
 
 
-        logging.info('pulisco le schifezze')
+        logging.info('Cleaning non-conneted regions.')
         ROI[ROI<1]=0
         fill = ndimage.binary_fill_holes(ROI).astype(int)
         fill, n= label(fill, return_num=True)
+
         count=[]
         for i in range(1, n+1):
             count.append(np.count_nonzero(fill == i))
         w=np.where(count==np.max(count))
         fill[fill!=w[0]+1]=0
+
         if args.show != None:
             plt.figure()
             plt.title('cleaning image.')
             plt.imshow(fill)
             plt.show()
 
-        logging.info('ltrovo il bordo')
+        logging.info('Find the coutours.')
         contours = measure.find_contours(fill,0,  fully_connected='high')
         arr = contours[0].flatten('F').astype('int')
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
 
-        logging.info('uso fill_raff per inciottirla')
+        logging.info('Final refinement: ')
         R=int(distanza(x1,y1,x2,y2)/2)
-        roughborder=np.zeros(np.shape(im_log_n))
+        roughborder=np.zeros(np.shape(image_n))
 
         for _ in range(0,len(x)):
             print(len(x)-_)
