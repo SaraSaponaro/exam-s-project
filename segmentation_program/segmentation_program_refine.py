@@ -52,7 +52,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(116, 126):
+    for item in range(45, 46):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -165,6 +165,13 @@ def segmentation(file_path):
 
         fill_raff=ndimage.binary_fill_holes(roughborder).astype(int)
 
+        frequency_raff=np.reshape(fill_raff,-1)
+        frequency=np.reshape(fill,-1)
+
+        if list(frequency_raff).count(0)>list(frequency).count(0):
+            print('change')
+            fill_raff=fill
+
         if args.show != None:
             plt.figure()
             plt.title('Final mask of segmented mass.')
@@ -185,6 +192,7 @@ def segmentation(file_path):
         fill_raff = fill_raff.astype(np.int8)
         im1 = Image.fromarray(fill_raff, mode='L')
         im1.save(mask_out)
+
         f.close()
     #return mask_out, fill_raff
 
@@ -192,7 +200,7 @@ def segmentation(file_path):
 if __name__ == '__main__':
 
     #logging.info('Luigi -> /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample/*.png')
-    #logging.info('Sara -> /Users/sarasaponaro/Desktop/exam_cmpda/large_sample/*.png')
+    #logging.info('Sara -> /Users/sarasaponaro/Desktop/exam_cmpda  /large_sample/*.png')
 
     parser= argparse.ArgumentParser(description=_description)
     parser.add_argument('-i','--input', help='path to images folder')
