@@ -52,7 +52,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(45, 46):
+    for item in range(176, 177):
         f = open('center_list.txt', 'a')
         image=imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -167,7 +167,7 @@ def segmentation(file_path):
 
         frequency_raff=np.reshape(fill_raff,-1)
         frequency=np.reshape(fill,-1)
-
+        
         if list(frequency_raff).count(0)>list(frequency).count(0):
             print('change')
             fill_raff=fill
@@ -182,7 +182,7 @@ def segmentation(file_path):
         plt.figure()
         plt.title('confronto.')
         plt.subplot(1,2,1)
-        conf=imageio.imread(file_path+'large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf=imageio.imread(file_path+'/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(fill_raff, alpha=0.7)
         plt.subplot(1,2,2)
@@ -207,4 +207,4 @@ if __name__ == '__main__':
     parser.add_argument('-s','--show', help='Do you want to show the images of process?')
     args=parser.parse_args()
     #segmentation(args.input)
-    segmentation('/Users/sarasaponaro/Desktop/exam_cmpda/')
+    segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med')
