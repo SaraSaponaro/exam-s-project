@@ -1,9 +1,9 @@
-import pylab as plt
-import numpy as np
 import imageio
 import logging
 import glob
 import os
+import pylab as plt
+import numpy as np
 from skimage import measure
 from segmentation_program.define_border import distanza
 from scipy.stats import  kurtosis, skew
@@ -12,13 +12,13 @@ from skimage.measure import EllipseModel
 logging.basicConfig(level=logging.INFO)
 
 
-def linear(x1,y1,x2,y2):
+def linear(x1, y1, x2, y2):
     """
     Find angular coefficient and intercept of a straight line given two points
     """
     m = (y2-y1)/(x2-x1)
     q = (y1 - x1*(y2-y1))/(x2-x1)
-    return m,q
+    return m, q
 
 def mass_area(mask_only):
     """
@@ -65,11 +65,11 @@ def Radial_lenght_entropy(d_norm):
     for i in range(0, 5):
         mask1 = d_norm < bins[i+1]
         mask2 = d_norm > bins[i]
-        p = len(d_norm[np.logical_and(mask1,mask2)])/len(d_norm)
+        p = len(d_norm[np.logical_and(mask1, mask2)])/len(d_norm)
         E += - p*np.log(p + 2.2e-16)
     return E
 
-def cross_zero(d,d_mean):
+def cross_zero(d, d_mean):
    """
    Counts the number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
    """
@@ -84,7 +84,7 @@ def axis(mask_only):
     arr = contours[0].flatten('F')
     y = arr[0:int(len(arr)/2)]
     x = arr[int(len(arr)/2):]
-    z = np.hstack((x,y)).reshape(2,-1).T
+    z = np.hstack((x, y)).reshape(2,-1).T
     ell = EllipseModel()
     ell.estimate(z)
     _, __, a, b, ___ = ell.params
@@ -116,7 +116,7 @@ def mass_intensity(mass):
     mass = mass/np.max(mass)
     mean = np.mean(mass)
     std = np.std(mass)
-    return mean,std
+    return mean, std
 
 
 if __name__ == '__main__':
