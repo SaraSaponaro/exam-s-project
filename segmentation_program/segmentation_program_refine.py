@@ -11,8 +11,8 @@ from skimage.transform import rescale
 from skimage import measure
 from skimage.morphology import label
 from skimage.filters import hessian
-from draw_radial_line import draw_radial_lines
-from define_border import define_border, distanza
+from segmentation_program.draw_radial_line import draw_radial_lines
+from segmentation_program.define_border import define_border, distanza
 logging.basicConfig(level=logging.INFO)
 
 _description = 'Computer-aided diagnosis (CAD) system for characterising masses.'
@@ -47,7 +47,7 @@ def segmentation(file_path):
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(45, 46):
+    for item in range(107,110):
         f = open('center_list.txt', 'a')
         image = imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -130,9 +130,9 @@ def segmentation(file_path):
         for i in range(1, n+1):
             count.append(np.count_nonzero(fill == i))
         w = np.where(count == np.max(count))
-        fill[fill != w[0]+1] = 0        # Comparison to None should be 'expr is not None' (singleton-comparison)
+        fill[fill != w[0]+1] = 0
 
-        if args.show != None:
+        if args.show is not None:
             plt.figure()
             plt.title('cleaning image.')
             plt.imshow(fill)
@@ -148,7 +148,7 @@ def segmentation(file_path):
         R = int(distanza(x1, y1, x2, y2)/2)
         roughborder = np.zeros(np.shape(image_n))
 
-        for i, _ in enumerate(x):
+        for i in range(len(x)):
             print(len(x)-i)
             center_raff = [x[i], y[i]]
             Ray_masks_raff = draw_radial_lines(ROI, center_raff, int(R/R_scale), NL)
