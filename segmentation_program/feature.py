@@ -15,6 +15,22 @@ logging.basicConfig(level=logging.INFO)
 def linear(x1, y1, x2, y2):
     """
     Find angular coefficient and intercept of a straight line given two points
+
+    Parameters
+    ----------
+    x1 : int
+        the abscissa of the first point
+    y1 : int
+        the ordinate of the first point
+    x2 : int
+        the abscissa of the second point
+    y2 : int
+        the abscissa of the second point
+
+    Returns
+    ----------
+    m,q
+        angular coefficient and slope of the computed line
     """
     m = (y2-y1)/(x2-x1)
     q = (y1 - x1*(y2-y1))/(x2-x1)
@@ -23,6 +39,18 @@ def linear(x1, y1, x2, y2):
 def mass_area(mask_only):
     """
     Finds the number of pixels inside the mass
+
+    Parameters
+    ----------
+    mask_only : numpy.ndarray
+        This is a 2D array representing the mask of the segmented image.
+        The mass is filled with 1, the background is filled with 0.
+
+    Returns
+    ----------
+    area
+        the area (number of pixels) of the segmented mass.
+
     """
     a = np.where(mask_only != 0)
     area = np.shape(a)[1]
@@ -31,6 +59,18 @@ def mass_area(mask_only):
 def mass_perimeter(mask_only):
     """
     Summing up the number of pixels on the boundary's mass
+
+    Parameters
+    ----------
+    mask_only : numpy.ndarray
+        This is a 2D array representing the mask of the segmented image.
+        The mass is filled with 1, the background is filled with 0.
+
+    Returns
+    ----------
+    perimeter
+        the perimeter (number of pixels on the boundary) of the segmented mass.
+
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
     return len(contours[0])
@@ -43,6 +83,29 @@ def NRL(mask_only, center_x, center_y, perimetro):
     """
     Finds the border of the mask and computes the distance between the boundary pixels and the center.
     It also calculates the normalized distance, the mean and the standard deviation of the normalized distance.
+
+    Parameters
+    ----------
+    mask_only : numpy.ndarray
+        This is a 2D array representing the mask of the segmented image.
+        The mass is filled with 1, the background is filled with 0.
+    center_x : int
+        This number indicates the abscissa of the center of the mass
+    center_y : int
+        This number indicates the ordinate of the center of the mass
+    perimetro : int
+        This number stands for the perimeter of the segmented mass
+
+    Returns
+    ----------
+    d
+        array containing distances between boundary pixels and the center
+    d_mean
+        mean value of d
+    d_norm
+        normalized d
+    std
+        standard deviation of d
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
     arr = contours[0]
@@ -59,6 +122,16 @@ def NRL(mask_only, center_x, center_y, perimetro):
 def Radial_lenght_entropy(d_norm):
     """
     Find a probabilistic measure computed from the histogram of the normalized radial lenght.
+
+    Parameters
+    ----------
+    d_norm : numpy.ndarray
+        This is a 1D array containing normalized distances between boundary pixels and the center.
+
+    Returns
+    ----------
+    E
+        Radial Length Entropy
     """
     __, bins, _ = plt.hist(d_norm, 5, density=1)
     E=0
@@ -70,15 +143,42 @@ def Radial_lenght_entropy(d_norm):
     return E
 
 def cross_zero(d, d_mean):
-   """
-   Counts the number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
-   """
+
+    """
+    Counts the number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
+
+    Parameters
+    ----------
+    d : numpy.ndarray
+        This is a 1D array containing distances between boundary pixels and the center.
+
+    d_mean : float
+        Mean of d
+
+    Returns
+    ----------
+    c
+        number of times that the radial distance from the center to boundary pixels overcomes the mean distance. 
+    """
    c = np.where(d>=np.mean(d))
    return len(c[0])
 
 def axis(mask_only):
     """
     Finds minimum and maximum distance connecting two boundary pixels passing trough the center.
+
+    Parameters
+    ----------
+    mask_only : numpy.ndarray
+        This is a 2D array representing the mask of the segmented image.
+        The mass is filled with 1, the background is filled with 0.
+
+    Returns
+    ----------
+    max_axis
+        maximum distance of the line passing between boundary pixels and the center.
+    min_axis
+        minimum distance of the line passing between boundary pixels and the center.
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
     arr = contours[0].flatten('F')
@@ -94,17 +194,37 @@ def axis(mask_only):
 def var_ratio(d):
     """
     Finds the maximum variation of distance from the mean. It computes the mean and the standard deviation of the dominant variations.
+
+    Parameters
+    ----------
+    d : numpy.ndarray
+        This is a 1D array containing distances between boundary pixels and the center.
+
+    Returns
+    ----------
+    mean, std
+        mean value and standard deviation of variations of distance from the mean value
+
     """
     vm = np.max(d-(np.mean(d)))/2
     mean = np.mean(np.abs(d-(np.mean(d)))>=vm)
     std = np.std(np.abs(d-(np.mean(d))>=vm))
     return mean, std
 
-def convexity(mass,area):
+def convexity(mask_only,area):
     """
     Finds the smallest convex containing the mass. It returns the ratio between the mass area and the area of convex hull.
+
+    Parameters
+    ----------
+    mask_only : numpy.ndarray
+        This is a 2D array representing the mask of the segmented image.
+        The mass is filled with 1, the background is filled with 0.
+
+    Returns
+    ----------
     """
-    hull = convex_hull_image(mass)
+    hull = convex_hull_image(mask_only)
     a = np.where(hull != 0)
     area_hull = np.shape(a)[1]
     return area/area_hull

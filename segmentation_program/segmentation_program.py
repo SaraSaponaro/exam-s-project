@@ -20,6 +20,20 @@ _description = 'Computer-aided diagnosis (CAD) system for characterising masses.
 def process_img(image, smooth_factor, scale_factor):
     """
     This function pre-process the image.
+
+    Parameters
+    ----------
+    image : image(scrivi qualcosa di piu)
+        The image to be processated
+    smooth_factor : int
+        The number that caracterizes the smoothing
+    scale_factor :  int
+        The number that indicates how much you want to rescale the image
+
+    Returns
+    ----------
+    image_normalized
+        a rescaled and smoothed image of the input image
     """
     k = np.ones((smooth_factor, smooth_factor))/smooth_factor**2
     im_conv = signal.convolve2d(image, k)
@@ -30,6 +44,28 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
     """
     If the point with maximum intensity is too far away from the ROI center,
     the center is choosen as the center of the rectangle. This is also the starting point of rays.
+
+    Parameters
+    ----------
+   
+    y_max : int
+        This number indicates the ordinate of the maximum intensity pixel
+    x_max : int
+        This number indicates the abscissa of the maximum intensity pixel
+    y_1 : int
+        This number indicates the ordinate of the upper left corner of the ROI
+    x_1 : int
+        This number indicates the abscissa of the upper left corner of the ROI
+    y_2 : int
+        This number indicates the ordinate of the lower right corner of the ROI
+    x_2 : int
+        This number indicates the abscissa of the lower right corner of the ROI
+
+    Returns
+    ----------
+    center
+        a list containing the ordinate and abscissa of the ROI center
+
     """
     if((np.abs(x_max-(x2-x1)/2) < (4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2) < (4/5)*(y1+(y2-y1)/2))):
         x_center = x1+int((x2-x1)/2)
@@ -44,10 +80,16 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
 def segmentation(file_path):
     """
     This function performs the real segmentation of the input image.
+
+    Parameters
+    ----------
+   
+    file_path : string
+        The path where the images are stored
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
-    for item in range(5,6):
+    for item in range(171,177):
         f = open('center_list.txt', 'a')
         image = imageio.imread(fileID[item])
         filename, file_extension = os.path.splitext(fileID[item])
@@ -195,4 +237,4 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--show', help='Do you want to show the images of process?')
     args = parser.parse_args()
     #segmentation(args.input)
-    segmentation('/Users/sarasaponaro/Desktop/exam_cmpda/')
+    segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med/')
