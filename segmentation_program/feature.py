@@ -203,7 +203,7 @@ def var_ratio(d):
     Returns
     ----------
     mean, std
-        mean value and standard deviation of variations of distance from the mean value
+        mean value and standard deviation of variations of distance from the mean value.
 
     """
     vm = np.max(d-(np.mean(d)))/2
@@ -223,15 +223,29 @@ def convexity(mask_only,area):
 
     Returns
     ----------
+    ratio
+        ratio between the mass area and the area of the smallest convex hull.
+
+
     """
     hull = convex_hull_image(mask_only)
     a = np.where(hull != 0)
     area_hull = np.shape(a)[1]
-    return area/area_hull
+    ratio=area/area_hull
+    return ratio
 
 def mass_intensity(mass):
     """
     Finds the mean and the standard deviation of the grey level intensity value of image.
+
+    Parameters
+    mass : numpy.ndarray
+        This is a matrix where the segmented mass is filled with its original value and the background is set to 0.
+
+    Returns
+    ----------
+    mean, std
+        mean value and standard deviation of pixels' intensity of the segmented mass.
     """
     mass = mass/np.max(mass)
     mean = np.mean(mass)
@@ -257,10 +271,8 @@ if __name__ == '__main__':
 
     files.sort()
     masks.sort()
-    f_ref = open('../txt/feature_reference.txt', 'w')
-    fm = open('../txt/feature_malignant.txt', 'w')
-    fb = open('../txt/feature_benign.txt', 'w')
-    fML = open ('../txt/feature_ML.txt', 'w')
+    f_ref = open('../txt/feature_alg.txt', 'w')
+    fML = open ('../txt/feature_alg_ML.txt', 'w')
     #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
     #f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
     for index, item in enumerate(masks):
@@ -299,21 +311,10 @@ if __name__ == '__main__':
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
 
-
-        if classe == '1':
-
-            fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
-            fm.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        elif classe == '2':
-
-            fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
-            fb.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
         fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
-    fm.close()
-    fb.close()
+    
     fML.close()
     f_ref.close()
