@@ -9,28 +9,29 @@ from segmentation_program.define_border import distanza
 from scipy.stats import  kurtosis, skew
 from skimage.morphology import convex_hull_image
 from skimage.measure import EllipseModel
+from skimage.transform import resize
 logging.basicConfig(level=logging.INFO)
 
 
 def linear(x1, y1, x2, y2):
     """
-    Find angular coefficient and intercept of a straight line given two points
+    Find angular coefficient and intercept of a straight line given two points.
 
     Parameters
     ----------
     x1 : int
-        the abscissa of the first point
+        the abscissa of the first point.
     y1 : int
-        the ordinate of the first point
+        the ordinate of the first point.
     x2 : int
-        the abscissa of the second point
+        the abscissa of the second point.
     y2 : int
-        the abscissa of the second point
+        the abscissa of the second point.
 
     Returns
     ----------
-    m,q
-        angular coefficient and slope of the computed line
+    m,q : float
+        angular coefficient and slope of the computed line.
     """
     m = (y2-y1)/(x2-x1)
     q = (y1 - x1*(y2-y1))/(x2-x1)
@@ -48,7 +49,7 @@ def mass_area(mask_only):
 
     Returns
     ----------
-    area
+    area : int
         the area (number of pixels) of the segmented mass.
 
     """
@@ -68,7 +69,7 @@ def mass_perimeter(mask_only):
 
     Returns
     ----------
-    perimeter
+    perimeter : int
         the perimeter (number of pixels on the boundary) of the segmented mass.
 
     """
@@ -90,22 +91,22 @@ def NRL(mask_only, center_x, center_y, perimetro):
         This is a 2D array representing the mask of the segmented image.
         The mass is filled with 1, the background is filled with 0.
     center_x : int
-        This number indicates the abscissa of the center of the mass
+        This number indicates the abscissa of the center of the mass.
     center_y : int
-        This number indicates the ordinate of the center of the mass
+        This number indicates the ordinate of the center of the mass.
     perimetro : int
-        This number stands for the perimeter of the segmented mass
+        This number stands for the perimeter of the segmented mass.
 
     Returns
     ----------
-    d
-        array containing distances between boundary pixels and the center
-    d_mean
-        mean value of d
-    d_norm
-        normalized d
-    std
-        standard deviation of d
+    d : float
+        array containing distances between boundary pixels and the center.
+    d_mean : float
+        mean value of d.
+    d_norm : float
+        normalized d.
+    std : float
+        standard deviation of d.
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
     arr = contours[0]
@@ -130,8 +131,8 @@ def Radial_lenght_entropy(d_norm):
 
     Returns
     ----------
-    E
-        Radial Length Entropy
+    E : float
+        Radial Length Entropy.
     """
     __, bins, _ = plt.hist(d_norm, 5, density=1)
     E=0
@@ -153,15 +154,15 @@ def cross_zero(d, d_mean):
         This is a 1D array containing distances between boundary pixels and the center.
 
     d_mean : float
-        Mean of d
+        Mean of d.
 
     Returns
     ----------
-    c
+    c : int
         number of times that the radial distance from the center to boundary pixels overcomes the mean distance. 
     """
-   c = np.where(d>=np.mean(d))
-   return len(c[0])
+    c = np.where(d>=np.mean(d))
+    return len(c[0])
 
 def axis(mask_only):
     """
@@ -175,9 +176,9 @@ def axis(mask_only):
 
     Returns
     ----------
-    max_axis
+    max_axis : float
         maximum distance of the line passing between boundary pixels and the center.
-    min_axis
+    min_axis : float
         minimum distance of the line passing between boundary pixels and the center.
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
@@ -202,7 +203,7 @@ def var_ratio(d):
 
     Returns
     ----------
-    mean, std
+    mean, std : float
         mean value and standard deviation of variations of distance from the mean value.
 
     """
@@ -211,30 +212,30 @@ def var_ratio(d):
     std = np.std(np.abs(d-(np.mean(d))>=vm))
     return mean, std
 
-def convexity(mask_only,area):
+def convexity(mass,area):
     """
     Finds the smallest convex containing the mass. It returns the ratio between the mass area and the area of convex hull.
 
     Parameters
     ----------
-    mask_only : numpy.ndarray
+    mass : numpy.ndarray
         This is a 2D array representing the mask of the segmented image.
-        The mass is filled with 1, the background is filled with 0.
+        The mass is filled with its original value, the background is filled with 0.
 
     Returns
     ----------
-    ratio
+    ratio : float
         ratio between the mass area and the area of the smallest convex hull.
 
-
     """
-    hull = convex_hull_image(mask_only)
+    hull = convex_hull_image(mass)
     a = np.where(hull != 0)
     area_hull = np.shape(a)[1]
     ratio=area/area_hull
     return ratio
 
 def mass_intensity(mass):
+
     """
     Finds the mean and the standard deviation of the grey level intensity value of image.
 
@@ -244,7 +245,7 @@ def mass_intensity(mass):
 
     Returns
     ----------
-    mean, std
+    mean, std : float
         mean value and standard deviation of pixels' intensity of the segmented mass.
     """
     mass = mass/np.max(mass)
@@ -284,6 +285,8 @@ if __name__ == '__main__':
 
         mask_only = imageio.imread(item)
         img = imageio.imread(files[index])
+        mask_only = resize(mask_only, np.shape(img))
+        mask_only[mask_only>0]=1
         mass = img*mask_only
 
         a=np.where(mass!=0)
@@ -315,6 +318,14 @@ if __name__ == '__main__':
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
         fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
+        '''
+
+        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
+        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
+        fML.write('{} \t{}\t{} \t{}\t{}\t{} \n'.format( vm, E, conv, istd, kurt, sk))
+
+        '''
     
     fML.close()
     f_ref.close()

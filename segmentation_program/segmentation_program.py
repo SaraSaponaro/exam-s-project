@@ -23,17 +23,17 @@ def process_img(image, smooth_factor, scale_factor):
 
     Parameters
     ----------
-    image : image(scrivi qualcosa di piu)
-        The image to be processated
+    image : numpy.ndarray
+        The image to be processed.
     smooth_factor : int
-        The number that caracterizes the smoothing
+        The number that caracterizes the smoothing.
     scale_factor :  int
-        The number that indicates how much you want to rescale the image
+        The number that indicates how much you want to rescale the image.
 
     Returns
     ----------
-    image_normalized
-        a rescaled and smoothed image of the input image
+    image_normalized : numpy.ndarray
+        A rescaled and smoothed image of the input image.
     """
     k = np.ones((smooth_factor, smooth_factor))/smooth_factor**2
     im_conv = signal.convolve2d(image, k)
@@ -49,22 +49,22 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
     ----------
    
     y_max : int
-        This number indicates the ordinate of the maximum intensity pixel
+        This number indicates the ordinate of the maximum intensity pixel.
     x_max : int
-        This number indicates the abscissa of the maximum intensity pixel
+        This number indicates the abscissa of the maximum intensity pixel.
     y_1 : int
-        This number indicates the ordinate of the upper left corner of the ROI
+        This number indicates the ordinate of the upper left corner of the ROI.
     x_1 : int
-        This number indicates the abscissa of the upper left corner of the ROI
+        This number indicates the abscissa of the upper left corner of the ROI.
     y_2 : int
-        This number indicates the ordinate of the lower right corner of the ROI
+        This number indicates the ordinate of the lower right corner of the ROI.
     x_2 : int
-        This number indicates the abscissa of the lower right corner of the ROI
+        This number indicates the abscissa of the lower right corner of the ROI.
 
     Returns
     ----------
-    center
-        a list containing the ordinate and abscissa of the ROI center
+    center : list
+        a list containing the ordinate and abscissa of the ROI center.
 
     """
     if((np.abs(x_max-(x2-x1)/2) < (4/5)*(x1+(x2-x1)/2)) or (np.abs(y_max-(y2-y1)/2) < (4/5)*(y1+(y2-y1)/2))):
@@ -85,7 +85,7 @@ def segmentation(file_path):
     ----------
    
     file_path : string
-        The path where the images are stored
+        The path where the images are stored.
     """
     logging.info('Reading files')
     fileID = glob.glob(file_path+'/large_sample/*.png')
