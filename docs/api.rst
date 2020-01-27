@@ -1,8 +1,8 @@
 API
 ===
-.. automodule:: segmentation_program.segmentation_program
+.. automodule:: segmentation_program.segmentation
    :members:
-   
+
 .. automodule:: segmentation_program.draw_radial_line
    :members:
 
