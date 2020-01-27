@@ -1,3 +1,4 @@
+'''
 import os
 import logging
 
@@ -15,3 +16,4 @@ def _join(*args) -> str:
 
 ROOT_FOLDER = _join('segmantation_program')
 TEST_FOLDER = _join('tests')
+'''
