@@ -5,7 +5,7 @@ import os
 import pylab as plt
 import numpy as np
 from skimage import measure
-from segmentation_program.define_border import distanza
+from define_border import distanza
 from scipy.stats import  kurtosis, skew
 from skimage.morphology import convex_hull_image
 from skimage.measure import EllipseModel

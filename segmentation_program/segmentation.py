@@ -11,8 +11,8 @@ from skimage.transform import rescale
 from skimage import measure
 from skimage.morphology import label
 from skimage.filters import hessian
-from segmentation_program.draw_radial_line import draw_radial_lines
-from segmentation_program.define_border import define_border, distanza
+from draw_radial_line import draw_radial_lines
+from define_border import define_border, distanza
 logging.basicConfig(level=logging.INFO)
 
 _description = 'Computer-aided diagnosis (CAD) system for characterising masses.'
