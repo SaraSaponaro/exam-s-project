@@ -240,6 +240,7 @@ def mass_intensity(mass):
     Finds the mean and the standard deviation of the grey level intensity value of image.
 
     Parameters
+    ----------
     mass : numpy.ndarray
         This is a matrix where the segmented mass is filled with its original value and the background is set to 0.
 
