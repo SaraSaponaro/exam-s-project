@@ -5,7 +5,7 @@ import os
 import pylab as plt
 import numpy as np
 from skimage import measure
-from segmentation_program.define_border import distanza
+from define_border import distanza
 from scipy.stats import  kurtosis, skew
 from skimage.morphology import convex_hull_image
 from skimage.measure import EllipseModel
@@ -159,7 +159,7 @@ def cross_zero(d, d_mean):
     Returns
     ----------
     c : int
-        number of times that the radial distance from the center to boundary pixels overcomes the mean distance. 
+        number of times that the radial distance from the center to boundary pixels overcomes the mean distance.
     """
     c = np.where(d>=np.mean(d))
     return len(c[0])
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     #masks=glob.glob('mask_path')
 
     files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
+    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/segmentation_program/segmentation_program/result/*_mask.png')
     #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
     #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
 
@@ -279,14 +279,14 @@ if __name__ == '__main__':
     for index, item in enumerate(masks):
         filename, file_extension = os.path.splitext(item)
         filename = os.path.basename(filename)
-        filename = filename[:-10]
+        filename = filename[:-5]
         "1: malignant 2:benign"
         classe = filename[-1]
 
         mask_only = imageio.imread(item)
         img = imageio.imread(files[index])
-        mask_only = resize(mask_only, np.shape(img))
-        mask_only[mask_only>0]=1
+        mask_only = np.delete(mask_only, 0, 0)
+        mask_only = np.delete(mask_only, 0, 1)
         mass = img*mask_only
 
         a=np.where(mass!=0)
@@ -313,7 +313,8 @@ if __name__ == '__main__':
         intensity = np.reshape(mass[mass!=0], -1)
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
-
+        '''
+        reference
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
@@ -321,11 +322,9 @@ if __name__ == '__main__':
         '''
 
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
-        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
-        fML.write('{} \t{}\t{} \t{}\t{}\t{} \n'.format( vm, E, conv, istd, kurt, sk))
+        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
+        fML.write('{} \t{}\t{} \t{}\t{}\t{} \n'.format(vm, E, conv, istd, kurt, sk))
 
-        '''
-    
     fML.close()
     f_ref.close()
