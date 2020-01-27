@@ -257,22 +257,11 @@ def mass_intensity(mass):
 
 if __name__ == '__main__':
     logging.info('Reading files.')
-    #logging.info('Luigi -> files  =  /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    #logging.info('Luigi -> masks  =  /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
-    #logging.info('Sara  -> files  =  /Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    #logging.info('Sara  -> masks  =  /Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_mask.png')
-    #file_path=(input('Enter files = : '))
-    #mask_path=(input('Enter masks = : '))
-    #files=glob.glob('file_path')
-    #masks=glob.glob('mask_path')
-
-    files = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/large_sample_Im_segmented_ref/*_resized.png')
-    masks = glob.glob('/Users/sarasaponaro/Desktop/exam_cmpda/segmentation_program/segmentation_program/result/*_mask.png')
-    #files = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_resized.png')
-    #masks = glob.glob('/Users/luigimasturzo/Documents/esercizi_fis_med/large_sample_Im_segmented_ref/*_mask.png')
-
+    files = glob.glob('large_sample_Im_segmented_ref/*_resized.png')
+    masks = glob.glob('result/*_mask.png')
     files.sort()
     masks.sort()
+
     f_ref = open('../txt/feature_alg.txt', 'w')
     fML = open ('../txt/feature_alg_ML.txt', 'w')
     #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
@@ -315,13 +304,12 @@ if __name__ == '__main__':
         kurt = kurtosis(intensity, fisher = False)
         sk = skew(intensity)
         '''
-        reference
+        reference:
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
         fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
         '''
-
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
         f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
         fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))

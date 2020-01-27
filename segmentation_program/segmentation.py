@@ -76,8 +76,7 @@ def find_center(x_max, y_max, y1, x1, y2, x2):
     center = [x_center, y_center]
     return center
 
-
-def segmentation(file_path):
+def segmentation():
     """
     This function performs the real segmentation of the input image.
 
@@ -88,7 +87,7 @@ def segmentation(file_path):
         The path where the images are stored.
     """
     logging.info('Reading files')
-    fileID = glob.glob(file_path+'/large_sample/*.png')
+    fileID = glob.glob('large_sample/*.png')
     for item in range(171,177):
         f = open('center_list.txt', 'a')
         image = imageio.imread(fileID[item])
@@ -110,7 +109,7 @@ def segmentation(file_path):
 
         logging.info('Processing image {}'.format(filename))
         image_n = process_img(image, smooth_factor, scale_factor)
-        conf = imageio.imread(file_path+'/large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf = imageio.imread('large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.figure()
         plt.subplot(121)
         plt.title('image {}'.format(filename))
@@ -215,7 +214,7 @@ def segmentation(file_path):
         plt.figure()
         plt.title('confronto.')
         plt.subplot(1, 2, 1)
-        conf = imageio.imread(file_path+'large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
+        conf = imageio.imread('large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
         plt.imshow(fill_raff, alpha=0.7)
         plt.subplot(1, 2, 2)
@@ -229,12 +228,7 @@ def segmentation(file_path):
         f.close()
 
 if __name__ == '__main__':
-    #logging.info('Luigi -> /Users/luigimasturzo/Documents/esercizi_fis_med/large_sample/*.png')
-    #logging.info('Sara -> /Users/sarasaponaro/Desktop/exam_cmpda  /large_sample/*.png')
-
     parser = argparse.ArgumentParser(description=_description)
-    parser.add_argument('-i', '--input', help='path to images folder')
     parser.add_argument('-s', '--show', help='Do you want to show the images of process?')
     args = parser.parse_args()
-    #segmentation(args.input)
-    segmentation('/Users/luigimasturzo/Documents/esercizi_fis_med/')
+    segmentation()
