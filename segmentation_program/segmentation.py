@@ -32,13 +32,13 @@ def process_img(image, smooth_factor, scale_factor):
 
     Returns
     ----------
-    image_normalized : numpy.ndarray
+    image_scaled : numpy.ndarray
         A rescaled and smoothed image of the input image.
     """
     k = np.ones((smooth_factor, smooth_factor))/smooth_factor**2
     im_conv = signal.convolve2d(image, k)
-    image_normalized = rescale(im_conv, 1/scale_factor)
-    return image_normalized
+    image_scaled = rescale(im_conv, 1/scale_factor)
+    return image_scaled
 
 def find_center(x_max, y_max, y1, x1, y2, x2):
     """
@@ -88,10 +88,9 @@ def segmentation():
     """
     logging.info('Reading files')
     fileID = glob.glob('large_sample/*.png')
-    for item in range(171,177):
-        f = open('center_list.txt', 'a')
-        image = imageio.imread(fileID[item])
-        filename, file_extension = os.path.splitext(fileID[item])
+    for _, item in enumerate(fileID):
+        image = imageio.imread(item)
+        filename, file_extension = os.path.splitext(item)
         filename = os.path.basename(filename)
         path_out = 'result/'
 
@@ -212,7 +211,7 @@ def segmentation():
             plt.show()
 
         plt.figure()
-        plt.title('confronto.')
+        plt.title('comparisons.')
         plt.subplot(1, 2, 1)
         conf = imageio.imread('large_sample_Im_segmented_ref/'+str(filename)+'_mass_mask.png')
         plt.imshow(conf)
