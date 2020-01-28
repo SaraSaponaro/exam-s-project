@@ -184,7 +184,7 @@ def segmentation():
         y = arr[0:(int(len(arr)/2))]
         x = arr[(int(len(arr)/2)):]
 
-        logging.info('Final refinement: ')
+        logging.info('Final refinement:')
         R = int(distanza(x1, y1, x2, y2)/2)
         roughborder = np.zeros(np.shape(image_n))
 

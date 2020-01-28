@@ -17,7 +17,7 @@ def pol2cart(rho, theta):
     x : float
         abscissa of the point.
     y : float
-        ordinate of the point. 
+        ordinate of the point.
     """
     x = rho * np.cos(theta)
     y = rho * np.sin(theta)
@@ -42,11 +42,11 @@ def draw_radial_lines(ROI, center, R, NL):
     Ray_masks = []
     rho = np.arange(R)
 
-    for _ in range(0, NL):
+    for ii in range(0, NL):
         xx = []
         yy = []
-        for __ in range(0, R):
-            x, y = pol2cart(rho[__], theta[_])
+        for jj in range(0, R):
+            x, y = pol2cart(rho[jj], theta[ii])
             xx.append(center[0]+math.ceil(x))
             yy.append(center[1]+math.ceil(y))
         line1 = np.column_stack((xx, yy))

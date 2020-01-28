@@ -109,8 +109,7 @@ def NRL(mask_only, center_x, center_y, perimetro):
         standard deviation of d.
     """
     contours = measure.find_contours(mask_only, 0, fully_connected='high')
-    arr = contours[0]
-    arr = arr.flatten('F')
+    arr = contours[0].flatten('F')
     y = arr[0:(int(len(arr)/2))]
     x = arr[(int(len(arr)/2)):]
     d = distanza(center_x,center_y, x, y)
@@ -261,59 +260,52 @@ if __name__ == '__main__':
     masks = glob.glob('result/*_mask.png')
     files.sort()
     masks.sort()
+    with open('../txt/feature_alg.txt', 'w') as f_ref, open ('../txt/feature_alg_ML.txt', 'w') as fML:
+        #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
+        #f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
+        for index, item in enumerate(masks):
+            filename, file_extension = os.path.splitext(item)
+            filename = os.path.basename(filename)
+            filename = filename[:-5]
+            "1: malignant 2:benign"
+            classe = filename[-1]
 
-    f_ref = open('../txt/feature_alg.txt', 'w')
-    fML = open ('../txt/feature_alg_ML.txt', 'w')
-    #f.write('filename \t classe \t area \t perimeter \t circularity \t mu_NRL \t std_NRL \t zero_crossing \t max_axis \t min_axis \t')
-    #f.write('mu_VR \t std_VR \t RLE \t convexity \t mu_I \t std_I \t kurtosis \t skewness\n')
-    for index, item in enumerate(masks):
-        filename, file_extension = os.path.splitext(item)
-        filename = os.path.basename(filename)
-        filename = filename[:-5]
-        "1: malignant 2:benign"
-        classe = filename[-1]
+            mask_only = imageio.imread(item)
+            img = imageio.imread(files[index])
+            mask_only = np.delete(mask_only, 0, 0)
+            mask_only = np.delete(mask_only, 0, 1)
+            mass = img*mask_only
 
-        mask_only = imageio.imread(item)
-        img = imageio.imread(files[index])
-        mask_only = np.delete(mask_only, 0, 0)
-        mask_only = np.delete(mask_only, 0, 1)
-        mass = img*mask_only
+            a=np.where(mass!=0)
+            x1=np.min(a[1])
+            y1=np.min(a[0])
+            x2=np.max(a[1])
+            y2=np.max(a[0])
 
-        a=np.where(mass!=0)
-        center_intensity=np.where(mass==np.max(mass))
+            center_x = x1+int((x2-x1)/2)
+            center_y = y1+int((y2-y1)/2)
 
-        x1=np.min(a[1])
-        y1=np.min(a[0])
-        x2=np.max(a[1])
-        y2=np.max(a[0])
-
-        center_x = x1+int((x2-x1)/2)
-        center_y = y1+int((y2-y1)/2)
-
-        area = mass_area(mask_only)
-        perimeter = mass_perimeter(mask_only)
-        circ = circularity(area,perimeter)
-        d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, perimeter)
-        cross0 = cross_zero(d, mu_NRL)
-        rmin,rmax  = axis(mask_only)
-        vm, vs = var_ratio(d)
-        E = Radial_lenght_entropy(d_norm)
-        conv = convexity(mass, area)
-        im, istd = mass_intensity(mass)
-        intensity = np.reshape(mass[mass!=0], -1)
-        kurt = kurtosis(intensity, fisher = False)
-        sk = skew(intensity)
-        '''
-        reference:
-        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
-        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
-        fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
-        '''
-        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
-        f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
-        fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
-        fML.write('{} \t{}\t{} \t{}\t{}\t{} \n'.format(vm, E, conv, istd, kurt, sk))
-
-    fML.close()
-    f_ref.close()
+            area = mass_area(mask_only)
+            perimeter = mass_perimeter(mask_only)
+            circ = circularity(area,perimeter)
+            d, mu_NRL, d_norm, std_NRL = NRL(mask_only, center_x, center_y, perimeter)
+            cross0 = cross_zero(d, mu_NRL)
+            rmin,rmax  = axis(mask_only)
+            vm, vs = var_ratio(d)
+            E = Radial_lenght_entropy(d_norm)
+            conv = convexity(mass, area)
+            im, istd = mass_intensity(mass)
+            intensity = np.reshape(mass[mass!=0], -1)
+            kurt = kurtosis(intensity, fisher = False)
+            sk = skew(intensity)
+            '''
+            reference:
+            f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
+            f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}   \n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+            fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
+            fML.write('{} \t{} \t{} \t{} \n'.format( E, istd, kurt, sk))
+            '''
+            f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t '.format(filename, classe, area, perimeter, circ ,mu_NRL, std_NRL, cross0))
+            f_ref.write('{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{} \t{}\n'.format(rmax, rmin, vm, vs, E, conv, im, istd, kurt, sk))
+            fML.write('{} \t{} \t{} \t{} \t{} \t{} \t'.format(filename, classe, area, circ ,mu_NRL, std_NRL))
+            fML.write('{} \t{}\t{} \t{}\t{}\t{} \n'.format(vm, E, conv, istd, kurt, sk))

@@ -22,7 +22,7 @@ def distanza(x1, y1, x2, y2):
         distance between two points.
 
     """
-    
+
     distanza_euclidea = np.sqrt((x1-x2)**2 + (y1-y2)**2)
     return distanza_euclidea
 
@@ -54,16 +54,16 @@ def define_border(img, NL, ROI, size_nhood_variance, Ray_masks):
     roughborder = np.zeros(np.shape(img))
     J = generic_filter(img, np.std, size=size_nhood_variance)
 
-    for _ in range(0, NL):
-        Jmasked = J*Ray_masks[_]
+    for i in range(0, NL):
+        Jmasked = J*Ray_masks[i]
         Jmasked = Jmasked*ROI
         if np.max(Jmasked) != 0:
             w = np.where(Jmasked == np.max(Jmasked))
             y_max.append(w[0][0])
             x_max.append(w[1][0])
 
-    for _ in range(0, len(x_max)-1):
-        coords = line_nd((y_max[_], x_max[_]), (y_max[_+1], x_max[_+1]))
+    for j in range(0, len(x_max)-1):
+        coords = line_nd((y_max[j], x_max[j]), (y_max[j+1], x_max[j+1]))
         roughborder[coords[0], coords[1]] = 1
 
     return roughborder
