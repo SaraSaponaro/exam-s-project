@@ -98,7 +98,7 @@ def segmentation():
             logging.info('Creating folder for save results.\n')
             os.makedirs('result')
         mask_out = path_out + filename + '_mask' + file_extension
-
+        
         logging.info('Defining parameters ')
         smooth_factor = 8
         scale_factor = 8
