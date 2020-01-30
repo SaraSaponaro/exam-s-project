@@ -7,6 +7,7 @@ A segmentation algorithm for mass lesions in mammography.
 
 # Dataset info
 The dataset composed of 177 images is in the folder named "large_sample".
+\\
 The dataset of reference segmented masses is the folder named "large_sample_Im_segmented_ref".
 the dataset of our segmented masses is the folder named "result".
 
