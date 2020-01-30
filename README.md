@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/SaraSaponaro/segmentation_program.svg?branch=master)](https://travis-ci.org/SaraSaponaro/segmentation_program)
+[![Documentation Status](https://readthedocs.org/projects/segmentation-program/badge/?version=latest)](https://segmentation-program.readthedocs.io/en/latest/?badge=latest)
+
+
 # exam project
 A segmentation algorithm for mass lesions in mammography.
 
@@ -12,7 +16,4 @@ To extract the features run the program "feature.py".
 Machine learning implementation is written in file "DNN.ipynb" which is linked to Colab.
 
 
-
-[![Build Status](https://travis-ci.org/SaraSaponaro/segmentation_program.svg?branch=master)](https://travis-ci.org/SaraSaponaro/segmentation_program)
-[![Documentation Status](https://readthedocs.org/projects/segmentation-program/badge/?version=latest)](https://segmentation-program.readthedocs.io/en/latest/?badge=latest)
 
